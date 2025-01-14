@@ -86,7 +86,7 @@ public class ProductFrame extends JFrame {
                 tableModel.addRow(new Object[]{
                         false, // Checkbox de seleção
                         product.getName(), // Nome do produto
-                        product.getQuantity(), // Quantidade
+                        product.getTotalStock(), // Quantidade
                         product.getId() // ID, que será armazenado na coluna "ID"
                 });
             }
@@ -174,7 +174,7 @@ public class ProductFrame extends JFrame {
         // Cria o produto a ser enviado
         Product newProduct = new Product();
         newProduct.setName(name);
-        newProduct.setQuantity(quantity);
+        newProduct.setTotalStock(quantity);
 
         // Envia a requisição POST para criar o produto
         HttpEntity<Product> request = new HttpEntity<>(newProduct);
