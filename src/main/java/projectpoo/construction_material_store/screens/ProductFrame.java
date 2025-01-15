@@ -22,7 +22,7 @@ public class ProductFrame extends JFrame {
 
     public ProductFrame() {
         setTitle("Tela de Produtos");
-        setSize(400, 300);
+        setSize(700, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -66,46 +66,41 @@ public class ProductFrame extends JFrame {
     private void loadProducts() {
         productPanel.removeAll();
 
-        // Criar um modelo de tabela
-        String[] columnNames = {"Selecionar", "Nome do Produto", "Quantidade", "ID"}; // "ID" será a coluna invisível
+        // Atualize os nomes das colunas
+        String[] columnNames = {"Selecionar", "Nome", "Código", "Estoque Total", "Estoque Mínimo", "Preço", "Unidade", "ID"};
         DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
 
-        // Criar uma instância de RestTemplate
         RestTemplate restTemplate = new RestTemplate();
 
-        // Chama a API para obter a lista de produtos
-        ResponseEntity<List<Product>> response = restTemplate.exchange(API_URL, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
-        });
+        // Chama a API
+        ResponseEntity<List<Product>> response = restTemplate.exchange(API_URL, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
 
-        // Verifica se a resposta é válida
         if (response.getStatusCode().is2xxSuccessful()) {
             List<Product> products = response.getBody();
 
             for (Product product : products) {
-                // Adiciona uma linha à tabela para cada produto
                 tableModel.addRow(new Object[]{
-                        false, // Checkbox de seleção
-                        product.getName(), // Nome do produto
-                        product.getTotalStock(), // Quantidade
-                        product.getId() // ID, que será armazenado na coluna "ID"
+                        false,
+                        product.getName(),
+                        product.getCodProcuct(),
+                        product.getTotalStock(),
+                        product.getMinStock(),
+                        product.getPrice(),
+                        product.getSalesUnit(),
+                        product.getId()
                 });
             }
         } else {
             JOptionPane.showMessageDialog(this, "Erro ao carregar produtos.", "Erro", JOptionPane.ERROR_MESSAGE);
         }
 
-        // Tabela com scroll pane
+        // Configurar a tabela
         productTable = new JTable(tableModel);
-        productTable.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(new JCheckBox())); // Checkbox na primeira coluna
-
-        // Torna a primeira coluna (de seleção) um JCheckBox
-        productTable.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(new JCheckBox())); // Checkbox na primeira coluna
-        productTable.getColumnModel().getColumn(0).setCellRenderer(new JCheckBoxRenderer()); // Renderer para exibir o JCheckBox
 
         // Ocultar a coluna "ID"
-        productTable.getColumnModel().getColumn(3).setMaxWidth(0); // Definir a largura máxima como 0
-        productTable.getColumnModel().getColumn(3).setMinWidth(0); // Definir a largura mínima como 0
-        productTable.getColumnModel().getColumn(3).setPreferredWidth(0); // Definir a largura preferencial como 0
+        productTable.getColumnModel().getColumn(7).setMaxWidth(0);
+        productTable.getColumnModel().getColumn(7).setMinWidth(0);
+        productTable.getColumnModel().getColumn(7).setPreferredWidth(0);
 
         JScrollPane scrollPane = new JScrollPane(productTable);
         productPanel.add(scrollPane);
@@ -113,6 +108,7 @@ public class ProductFrame extends JFrame {
         productPanel.revalidate();
         productPanel.repaint();
     }
+
 
     class JCheckBoxRenderer extends JCheckBox implements TableCellRenderer {
         @Override
@@ -125,37 +121,63 @@ public class ProductFrame extends JFrame {
 
     private void openCreateProductDialog() {
         JDialog dialog = new JDialog(this, "Criar Produto", true);
-        dialog.setSize(300, 200);
+        dialog.setSize(650, 400);
         dialog.setLocationRelativeTo(this);
 
-        // Campos de entrada para o produto
-        JPanel panel = new JPanel(new GridLayout(3, 3));
+        // Painel para os campos
+        JPanel panel = new JPanel(new GridLayout(10, 2)); // Ajuste para suportar mais linhas
+
         panel.add(new JLabel("Nome:"));
         JTextField nameField = new JTextField();
         panel.add(nameField);
 
-        panel.add(new JLabel("Quantidade:"));
-        JTextField quantityField = new JTextField();
-        panel.add(quantityField);
+        panel.add(new JLabel("Código do Produto:"));
+        JTextField codProductField = new JTextField();
+        panel.add(codProductField);
+
+        panel.add(new JLabel("Quantidade em Estoque:"));
+        JTextField totalStockField = new JTextField();
+        panel.add(totalStockField);
+
+        panel.add(new JLabel("Estoque Mínimo:"));
+        JTextField minStockField = new JTextField();
+        panel.add(minStockField);
+
+        panel.add(new JLabel("Preço:"));
+        JTextField priceField = new JTextField();
+        panel.add(priceField);
+
+        panel.add(new JLabel("Unidade de Venda:"));
+        JTextField salesUnitField = new JTextField();
+        panel.add(salesUnitField);
 
         JButton btnSave = new JButton("Salvar");
         btnSave.addActionListener(e -> {
             String name = nameField.getText();
-            String quantityStr = quantityField.getText();
+            String codProduct = codProductField.getText();
+            String totalStockStr = totalStockField.getText();
+            String minStockStr = minStockField.getText();
+            String priceStr = priceField.getText();
+            String salesUnit = salesUnitField.getText();
 
-            if (name.isEmpty() || quantityStr.isEmpty()) {
+            // Validação dos campos
+            if (name.isEmpty() || codProduct.isEmpty() || totalStockStr.isEmpty() || minStockStr.isEmpty() || priceStr.isEmpty() || salesUnit.isEmpty()) {
                 JOptionPane.showMessageDialog(dialog, "Todos os campos são obrigatórios.", "Erro", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
             try {
-                double quantity = Double.parseDouble(quantityStr);
-                createProduct(name, quantity);
+                double totalStock = Double.parseDouble(totalStockStr);
+                double minStock = Double.parseDouble(minStockStr);
+                double price = Double.parseDouble(priceStr);
+
+                // Criação do produto
+                createProduct(name, codProduct, totalStock, minStock, price, salesUnit);
                 JOptionPane.showMessageDialog(dialog, "Produto criado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                 loadProducts();
-                dialog.dispose(); // Fecha o diálogo após salvar
+                dialog.dispose();
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(dialog, "Quantidade deve ser um número válido.", "Erro", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(dialog, "Valores numéricos inválidos.", "Erro", JOptionPane.ERROR_MESSAGE);
             } catch (Exception ex) {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(dialog, "Erro ao criar produto.", "Erro", JOptionPane.ERROR_MESSAGE);
@@ -163,20 +185,23 @@ public class ProductFrame extends JFrame {
         });
 
         panel.add(btnSave);
-
         dialog.add(panel);
         dialog.setVisible(true);
     }
 
-    private void createProduct(String name, double quantity) throws Exception {
+    private void createProduct(String name, String codProduct, double totalStock, double minStock, double price, String salesUnit) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
 
-        // Cria o produto a ser enviado
+        // Cria o objeto Product com os novos atributos
         Product newProduct = new Product();
         newProduct.setName(name);
-        newProduct.setTotalStock(quantity);
+        newProduct.setCodProcuct(codProduct);
+        newProduct.setTotalStock(totalStock);
+        newProduct.setMinStock(minStock);
+        newProduct.setPrice(price);
+        newProduct.setSalesUnit(salesUnit);
 
-        // Envia a requisição POST para criar o produto
+        // Envia a requisição POST
         HttpEntity<Product> request = new HttpEntity<>(newProduct);
         ResponseEntity<Product> response = restTemplate.exchange(API_URL, HttpMethod.POST, request, Product.class);
 
@@ -184,6 +209,7 @@ public class ProductFrame extends JFrame {
             throw new Exception("Erro ao criar produto: " + response.getStatusCode());
         }
     }
+
 
     private void deleteSelectedProducts() {
         // Lista dos IDs dos produtos a serem deletados
