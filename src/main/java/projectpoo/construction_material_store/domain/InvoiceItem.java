@@ -29,4 +29,45 @@ public class InvoiceItem {
     @Column(nullable = false)
     private Double unitPrice;
 
+    public InvoiceItem() {
+    }
+
+    public InvoiceItem(Product product, Invoice invoice, Integer quantitySale, Double unitPrice) {
+        this.product = product;
+        this.invoice = invoice;
+        this.quantitySale = quantitySale;
+        this.unitPrice = unitPrice;
+    }
+
+    public Invoice getInvoice() {
+        return invoice;
+    }
+
+    public void setInvoice(Invoice invoice) {
+        this.invoice = invoice;
+    }
+
+    public Product getProduct() {
+        return product;
+    }
+
+    public void setProduct(Product product) {
+        this.product = product;
+    }
+
+    public Integer getQuantitySale() {
+        return quantitySale;
+    }
+
+    public void setQuantitySale(Integer quantitySale) {
+        this.quantitySale = quantitySale;
+    }
+
+    public Double getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(Double unitPrice) {
+        this.unitPrice = unitPrice;
+    }
 }

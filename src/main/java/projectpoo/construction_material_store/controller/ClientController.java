@@ -3,45 +3,45 @@ package projectpoo.construction_material_store.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import projectpoo.construction_material_store.domain.Product;
-import projectpoo.construction_material_store.service.ProductService;
+import projectpoo.construction_material_store.domain.Client;
+import projectpoo.construction_material_store.service.ClientService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/products")
-// Define a classe como um controlador REST e mapeia as requisições para o endpoint "/products"
-public class ProductController {
+@RequestMapping("/clients")
+// Define a classe como um controlador REST e mapeia as requisições para o endpoint "/clients"
+public class ClientController {
 
     @Autowired
-    private ProductService productService;
+    private ClientService clientService;
 
     @PostMapping
     // Mapeia uma requisição POST para criar um novo produto
-    public Product createProduct(@RequestBody Product product) {
+    public Client createClient(@RequestBody Client client) {
         // Chama o serviço para salvar o produto recebido no corpo da requisição
-        return productService.saveProduct(product);
+        return clientService.saveClient(client);
     }
 
     @GetMapping
     // Mapeia uma requisição GET para buscar todos os produtos
-    public List<Product> getAllProducts() {
+    public List<Client> getAllClients() {
         // Retorna a lista de todos os produtos disponíveis
-        return productService.getAllProducts();
+        return clientService.getAllClients();
     }
 
     @GetMapping("/{id}")
-    // Mapeia uma requisição GET para buscar um produto pelo seu ID
-    public Product getProductById(@PathVariable Long id) {
+    // Mapeia uma requisição GET para buscar os clientes que contenha aquele nome
+    public List<Client> getClientByName(@PathVariable String name) {
         // Retorna o produto correspondente ao ID fornecido, ou null caso não encontrado
-        return productService.getProductById(id).orElse(null);
+        return clientService.getClientsByName(name);
     }
 
     @DeleteMapping("/{id}")
     // Mapeia uma requisição DELETE para excluir um produto pelo ID
-    public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<String> deleteClient(@PathVariable Long id) {
         // Verifica se o produto foi excluído com sucesso
-        boolean isDeleted = productService.deleteProductById(id);
+        boolean isDeleted = clientService.deleteClientById(id);
         if (isDeleted) {
             return ResponseEntity.ok("Produto excluído com sucesso!");
         } else {
@@ -52,9 +52,9 @@ public class ProductController {
 
     @DeleteMapping
     // Mapeia uma requisição DELETE para excluir múltiplos produtos com base em uma lista de IDs
-    public ResponseEntity<String> deleteProducts(@RequestBody List<Long> ids) {
+    public ResponseEntity<String> deleteClients(@RequestBody List<Long> ids) {
         // Verifica se todos os produtos da lista foram excluídos com sucesso
-        boolean allDeleted = productService.deleteProductsByIds(ids);
+        boolean allDeleted = clientService.deleteClientsByIds(ids);
         if (allDeleted) {
             return ResponseEntity.ok("Todos os produtos foram excluídos com sucesso!");
         } else {
