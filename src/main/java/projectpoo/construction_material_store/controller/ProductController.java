@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import projectpoo.construction_material_store.domain.Product;
+import projectpoo.construction_material_store.dto.ProductDTO;
 import projectpoo.construction_material_store.service.ProductService;
 
 import java.util.List;
@@ -18,9 +19,9 @@ public class ProductController {
 
     @PostMapping
     // Mapeia uma requisição POST para criar um novo produto
-    public Product createProduct(@RequestBody Product product) {
+    public Product createProduct(@RequestBody ProductDTO product) {
         // Chama o serviço para salvar o produto recebido no corpo da requisição
-        return productService.saveProduct(product);
+        return productService.saveProduct(product.toProduct());
     }
 
     @GetMapping
