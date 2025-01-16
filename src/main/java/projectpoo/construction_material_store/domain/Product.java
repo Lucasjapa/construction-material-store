@@ -1,5 +1,7 @@
 package projectpoo.construction_material_store.domain;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -129,6 +131,14 @@ public class Product {
         this.salesUnit = salesUnit;
     }
 
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
     public enum Category {
         CIMENTO("Cimento e Argamassas"),
         TINTA("Tintas e Acessórios"),
@@ -151,6 +161,15 @@ public class Product {
 
         public String getDescricao() {
             return description;
+        }
+
+        public static Category fromDescription(String description) {
+            for (Category category : Category.values()) {
+                if (category.getDescricao().equalsIgnoreCase(description)) {
+                    return category;
+                }
+            }
+            throw new IllegalArgumentException("Categoria inválida: " + description);
         }
     }
 }

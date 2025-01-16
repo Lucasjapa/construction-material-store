@@ -6,13 +6,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import projectpoo.construction_material_store.domain.Product;
+import projectpoo.construction_material_store.dto.ProductDTO;
 
-import projectpoo.construction_material_store.domain.Product.Category;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -78,7 +77,8 @@ public class ProductFrame extends JFrame {
         RestTemplate restTemplate = new RestTemplate();
 
         // Chama a API
-        ResponseEntity<List<Product>> response = restTemplate.exchange(API_URL, HttpMethod.GET, null, new ParameterizedTypeReference<>() {});
+        ResponseEntity<List<Product>> response = restTemplate.exchange(API_URL, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
+        });
 
         if (response.getStatusCode().is2xxSuccessful()) {
             List<Product> products = response.getBody();
@@ -101,6 +101,12 @@ public class ProductFrame extends JFrame {
 
         // Configurar a tabela
         productTable = new JTable(tableModel);
+        productTable.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(new JCheckBox())); // Checkbox na primeira coluna
+
+        // Torna a primeira coluna (de seleção) um JCheckBox
+        productTable.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(new JCheckBox())); // Checkbox na primeira coluna
+        productTable.getColumnModel().getColumn(0).setCellRenderer(new JCheckBoxRenderer()); // Renderer para exibir o JCheckBox
+
 
         // Ocultar a coluna "ID"
         productTable.getColumnModel().getColumn(7).setMaxWidth(0);
@@ -142,6 +148,10 @@ public class ProductFrame extends JFrame {
         JTextField codProductField = new JTextField();
         panel.add(codProductField);
 
+        panel.add(new JLabel("Descrição:"));
+        JTextField descriptionField = new JTextField();
+        panel.add(descriptionField);
+
         panel.add(new JLabel("Quantidade em Estoque:"));
         JTextField totalStockField = new JTextField();
         panel.add(totalStockField);
@@ -164,9 +174,9 @@ public class ProductFrame extends JFrame {
 
         panel.add(new JLabel("Categorias:"));
         JComboBox<String> categoryList = new JComboBox<>(new String[]{
-                "Cimento", "Tinta", "Ferramentas", "Elétrico", "Hidráulico",
-                "Madeiras", "Ferragens", "Pisos", "Iluminação", "Decoração",
-                "Jardim", "Outros"
+                "Cimento e Argamassas", "Tintas e Acessórios", "Ferramentas", "Materiais Elétricos",
+                "Materiais Hidráulicos", "Madeiras e Compensados", "Ferragens", "Pisos e Revestimentos",
+                "Iluminação", "Decoração", "Jardinagem", "Outros"
         });
         panel.add(categoryList);
 
@@ -175,10 +185,18 @@ public class ProductFrame extends JFrame {
         btnSave.addActionListener(e -> {
             String name = nameField.getText();
             String codProduct = codProductField.getText();
+            String description = descriptionField.getText();
             String totalStockStr = totalStockField.getText();
             String minStockStr = minStockField.getText();
             String priceStr = priceField.getText();
             String salesUnit = salesUnitField.getText();
+            String expirationDate = expirationDateField.getText();
+            String category = categoryList.getSelectedItem().toString();
+
+            // Criar o DateTimeFormatter com o padrão adequado
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+            // Converter para LocalDateTime
+            LocalDateTime expirationDateformatted = LocalDateTime.parse(expirationDate + " 00:00:00", formatter);
 
             // Validação dos campos
             if (name.isEmpty() || codProduct.isEmpty() || totalStockStr.isEmpty() ||
@@ -199,7 +217,7 @@ public class ProductFrame extends JFrame {
 
                 // Criar produto
                 btnSave.setEnabled(false); // Desabilita o botão para evitar múltiplos cliques
-                createProduct(name, codProduct, totalStock, minStock, price, salesUnit);
+                createProduct(name, codProduct, totalStock, description, minStock, price, salesUnit, expirationDateformatted, category);
                 JOptionPane.showMessageDialog(dialog, "Produto criado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                 loadProducts(); // Atualizar lista de produtos
                 dialog.dispose(); // Fechar o diálogo
@@ -222,28 +240,21 @@ public class ProductFrame extends JFrame {
         dialog.setVisible(true);
     }
 
-    private void createProduct(String name, String codProduct, double totalStock, double minStock, double price, String salesUnit) throws Exception {
+    private void createProduct(String name, String codProduct, double totalStock, String description, double minStock, double price, String salesUnit, LocalDateTime expirationDate, String category) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
 
         // Cria o objeto Product com os novos atributos
-        Product newProduct = new Product();
-        newProduct.setName(name);
-        newProduct.setCodProcuct(codProduct);
-        newProduct.setTotalStock(totalStock);
-        newProduct.setMinStock(minStock);
-        newProduct.setPrice(price);
-        newProduct.setSalesUnit(salesUnit);
+//        Product newProduct = new Product(name, codProduct, totalStock, description, minStock, price, salesUnit, expirationDate, categoryModel);
+        ProductDTO newProduct = new ProductDTO(name, codProduct, totalStock, description, minStock, price, salesUnit, expirationDate, category);
 
         // Envia a requisição POST
-        HttpEntity<Product> request = new HttpEntity<>(newProduct);
+        HttpEntity<ProductDTO> request = new HttpEntity<>(newProduct);
         ResponseEntity<Product> response = restTemplate.exchange(API_URL, HttpMethod.POST, request, Product.class);
 
         if (!response.getStatusCode().is2xxSuccessful()) {
             throw new Exception("Erro ao criar produto: " + response.getStatusCode());
         }
     }
-
-
 
 
     private void deleteSelectedProducts() {
@@ -256,7 +267,7 @@ public class ProductFrame extends JFrame {
         for (int i = 0; i < tableModel.getRowCount(); i++) {
             Boolean isSelected = (Boolean) tableModel.getValueAt(i, 0);
             if (isSelected) {
-                Long productId = (Long) tableModel.getValueAt(i, 3); // Obtém o id do produto
+                Long productId = (Long) tableModel.getValueAt(i, 7); // Obtém o id do produto
                 if (productId != null) {
                     productsToDelete.add(productId); // Adiciona o id à lista
                 }
