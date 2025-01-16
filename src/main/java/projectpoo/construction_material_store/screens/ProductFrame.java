@@ -7,10 +7,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import projectpoo.construction_material_store.domain.Product;
 
+import projectpoo.construction_material_store.domain.Product.Category;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -125,8 +130,10 @@ public class ProductFrame extends JFrame {
         dialog.setLocationRelativeTo(this);
 
         // Painel para os campos
-        JPanel panel = new JPanel(new GridLayout(10, 2)); // Ajuste para suportar mais linhas
+        JPanel panel = new JPanel(new GridLayout(13, 2, 5, 5));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        // Campos de entrada
         panel.add(new JLabel("Nome:"));
         JTextField nameField = new JTextField();
         panel.add(nameField);
@@ -151,6 +158,19 @@ public class ProductFrame extends JFrame {
         JTextField salesUnitField = new JTextField();
         panel.add(salesUnitField);
 
+        panel.add(new JLabel("Data de Validade: (dd-mm-aaaa)"));
+        JTextField expirationDateField = new JTextField();
+        panel.add(expirationDateField);
+
+        panel.add(new JLabel("Categorias:"));
+        JComboBox<String> categoryList = new JComboBox<>(new String[]{
+                "Cimento", "Tinta", "Ferramentas", "Elétrico", "Hidráulico",
+                "Madeiras", "Ferragens", "Pisos", "Iluminação", "Decoração",
+                "Jardim", "Outros"
+        });
+        panel.add(categoryList);
+
+        // Botão de salvar
         JButton btnSave = new JButton("Salvar");
         btnSave.addActionListener(e -> {
             String name = nameField.getText();
@@ -161,7 +181,8 @@ public class ProductFrame extends JFrame {
             String salesUnit = salesUnitField.getText();
 
             // Validação dos campos
-            if (name.isEmpty() || codProduct.isEmpty() || totalStockStr.isEmpty() || minStockStr.isEmpty() || priceStr.isEmpty() || salesUnit.isEmpty()) {
+            if (name.isEmpty() || codProduct.isEmpty() || totalStockStr.isEmpty() ||
+                    minStockStr.isEmpty() || priceStr.isEmpty() || salesUnit.isEmpty()) {
                 JOptionPane.showMessageDialog(dialog, "Todos os campos são obrigatórios.", "Erro", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -171,20 +192,32 @@ public class ProductFrame extends JFrame {
                 double minStock = Double.parseDouble(minStockStr);
                 double price = Double.parseDouble(priceStr);
 
-                // Criação do produto
+                if (totalStock < 0 || minStock < 0 || price < 0) {
+                    JOptionPane.showMessageDialog(dialog, "Valores numéricos não podem ser negativos.", "Erro", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                // Criar produto
+                btnSave.setEnabled(false); // Desabilita o botão para evitar múltiplos cliques
                 createProduct(name, codProduct, totalStock, minStock, price, salesUnit);
                 JOptionPane.showMessageDialog(dialog, "Produto criado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-                loadProducts();
-                dialog.dispose();
+                loadProducts(); // Atualizar lista de produtos
+                dialog.dispose(); // Fechar o diálogo
+            } catch (DateTimeParseException ex) {
+                JOptionPane.showMessageDialog(dialog, "Formato de data inválido. Use dd-mm-aaaa.", "Erro", JOptionPane.ERROR_MESSAGE);
             } catch (NumberFormatException ex) {
-                JOptionPane.showMessageDialog(dialog, "Valores numéricos inválidos.", "Erro", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(dialog, "Insira valores numéricos válidos para estoque e preço.", "Erro", JOptionPane.ERROR_MESSAGE);
             } catch (Exception ex) {
+                JOptionPane.showMessageDialog(dialog, "Erro ao criar produto", "Erro", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
-                JOptionPane.showMessageDialog(dialog, "Erro ao criar produto.", "Erro", JOptionPane.ERROR_MESSAGE);
+            } finally {
+                btnSave.setEnabled(true); // Reativa o botão, mesmo em caso de erro
             }
         });
 
+        panel.add(new JLabel()); // Espaço vazio para alinhar o botão
         panel.add(btnSave);
+
         dialog.add(panel);
         dialog.setVisible(true);
     }
@@ -209,6 +242,8 @@ public class ProductFrame extends JFrame {
             throw new Exception("Erro ao criar produto: " + response.getStatusCode());
         }
     }
+
+
 
 
     private void deleteSelectedProducts() {
