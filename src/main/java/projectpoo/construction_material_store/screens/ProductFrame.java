@@ -1,16 +1,15 @@
 package projectpoo.construction_material_store.screens;
 
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import projectpoo.construction_material_store.domain.Product;
 import projectpoo.construction_material_store.dto.ProductDTO;
+import projectpoo.construction_material_store.screens.components.TableComponent;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -21,8 +20,6 @@ import java.util.List;
 public class ProductFrame extends JFrame {
 
     private static final String API_URL = "http://localhost:8080/products"; // URL da sua API
-    private final JPanel productPanel;
-    private JTable productTable;
 
     public ProductFrame() {
         setTitle("Tela de Produtos");
@@ -38,9 +35,12 @@ public class ProductFrame extends JFrame {
         add(label, BorderLayout.NORTH);
 
         // Inicializa o painel e adiciona ao layout
-        productPanel = new JPanel();
+        JPanel productPanel = new JPanel();
         productPanel.setLayout(new BoxLayout(productPanel, BoxLayout.Y_AXIS)); // Alinha verticalmente os componentes
         add(new JScrollPane(productPanel), BorderLayout.CENTER);
+
+        // Cria a instância do TableComponent
+        TableComponent tableComponent = new TableComponent(productPanel);
 
         // Painel de botões
         JPanel buttonPanel = new JPanel();
@@ -48,12 +48,17 @@ public class ProductFrame extends JFrame {
 
         // Adiciona um botão para criar um novo produto
         JButton btnCreateProduct = new JButton("Criar Produto");
-        btnCreateProduct.addActionListener(e -> openCreateProductDialog());
+        btnCreateProduct.addActionListener(e -> openCreateProductDialog(tableComponent));
         buttonPanel.add(btnCreateProduct);
+
+        // Adiciona um botão para criar um novo produto
+        JButton btnUpdateProduct = new JButton("Editar Produto");
+        btnUpdateProduct.addActionListener(e -> updateSelectedProduct(tableComponent));
+        buttonPanel.add(btnUpdateProduct);
 
         // Botão para deletar os produtos selecionados
         JButton btnDeleteSelected = new JButton("Deletar Selecionados");
-        btnDeleteSelected.addActionListener(e -> deleteSelectedProducts());
+        btnDeleteSelected.addActionListener(e -> deleteSelectedProducts(tableComponent));
         buttonPanel.add(btnDeleteSelected);
 
         // Adiciona o painel de botões ao layout no local apropriado (parte inferior)
@@ -61,76 +66,13 @@ public class ProductFrame extends JFrame {
 
         // Tenta carregar os produtos da API
         try {
-            loadProducts();
+            tableComponent.loadData(API_URL, Product[].class);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void loadProducts() {
-        productPanel.removeAll();
-
-        // Atualize os nomes das colunas
-        String[] columnNames = {"Selecionar", "Nome", "Código", "Estoque Total", "Estoque Mínimo", "Preço", "Unidade", "ID"};
-        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
-
-        RestTemplate restTemplate = new RestTemplate();
-
-        // Chama a API
-        ResponseEntity<List<Product>> response = restTemplate.exchange(API_URL, HttpMethod.GET, null, new ParameterizedTypeReference<>() {
-        });
-
-        if (response.getStatusCode().is2xxSuccessful()) {
-            List<Product> products = response.getBody();
-
-            for (Product product : products) {
-                tableModel.addRow(new Object[]{
-                        false,
-                        product.getName(),
-                        product.getCodProcuct(),
-                        product.getTotalStock(),
-                        product.getMinStock(),
-                        product.getPrice(),
-                        product.getSalesUnit(),
-                        product.getId()
-                });
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "Erro ao carregar produtos.", "Erro", JOptionPane.ERROR_MESSAGE);
-        }
-
-        // Configurar a tabela
-        productTable = new JTable(tableModel);
-        productTable.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(new JCheckBox())); // Checkbox na primeira coluna
-
-        // Torna a primeira coluna (de seleção) um JCheckBox
-        productTable.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(new JCheckBox())); // Checkbox na primeira coluna
-        productTable.getColumnModel().getColumn(0).setCellRenderer(new JCheckBoxRenderer()); // Renderer para exibir o JCheckBox
-
-
-        // Ocultar a coluna "ID"
-        productTable.getColumnModel().getColumn(7).setMaxWidth(0);
-        productTable.getColumnModel().getColumn(7).setMinWidth(0);
-        productTable.getColumnModel().getColumn(7).setPreferredWidth(0);
-
-        JScrollPane scrollPane = new JScrollPane(productTable);
-        productPanel.add(scrollPane);
-
-        productPanel.revalidate();
-        productPanel.repaint();
-    }
-
-
-    class JCheckBoxRenderer extends JCheckBox implements TableCellRenderer {
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            setSelected(value != null && (Boolean) value); // Definir se o checkbox está selecionado ou não
-            setEnabled(table.isEnabled()); // Define se o checkbox está habilitado
-            return this; // Retorna o próprio JCheckBox
-        }
-    }
-
-    private void openCreateProductDialog() {
+    private void openCreateProductDialog(TableComponent tableComponent) {
         JDialog dialog = new JDialog(this, "Criar Produto", true);
         dialog.setSize(650, 400);
         dialog.setLocationRelativeTo(this);
@@ -219,7 +161,7 @@ public class ProductFrame extends JFrame {
                 btnSave.setEnabled(false); // Desabilita o botão para evitar múltiplos cliques
                 createProduct(name, codProduct, totalStock, description, minStock, price, salesUnit, expirationDateformatted, category);
                 JOptionPane.showMessageDialog(dialog, "Produto criado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-                loadProducts(); // Atualizar lista de produtos
+                tableComponent.loadData(API_URL, Product[].class); // Atualizar lista de produtos
                 dialog.dispose(); // Fechar o diálogo
             } catch (DateTimeParseException ex) {
                 JOptionPane.showMessageDialog(dialog, "Formato de data inválido. Use dd-mm-aaaa.", "Erro", JOptionPane.ERROR_MESSAGE);
@@ -244,7 +186,6 @@ public class ProductFrame extends JFrame {
         RestTemplate restTemplate = new RestTemplate();
 
         // Cria o objeto Product com os novos atributos
-//        Product newProduct = new Product(name, codProduct, totalStock, description, minStock, price, salesUnit, expirationDate, categoryModel);
         ProductDTO newProduct = new ProductDTO(name, codProduct, totalStock, description, minStock, price, salesUnit, expirationDate, category);
 
         // Envia a requisição POST
@@ -257,12 +198,12 @@ public class ProductFrame extends JFrame {
     }
 
 
-    private void deleteSelectedProducts() {
+    private void deleteSelectedProducts(TableComponent tableComponent) {
         // Lista dos IDs dos produtos a serem deletados
         List<Long> productsToDelete = new ArrayList<>();
 
         // Obtém o modelo da tabela
-        DefaultTableModel tableModel = (DefaultTableModel) productTable.getModel();
+        DefaultTableModel tableModel = (DefaultTableModel) tableComponent.getProductTable().getModel();
 
         for (int i = 0; i < tableModel.getRowCount(); i++) {
             Boolean isSelected = (Boolean) tableModel.getValueAt(i, 0);
@@ -278,9 +219,45 @@ public class ProductFrame extends JFrame {
         if (!productsToDelete.isEmpty()) {
             // Chame a API para deletar os produtos com os IDs armazenados
             deleteProductsFromApi(productsToDelete);
+            tableComponent.loadData(API_URL, Product[].class);
         } else {
             JOptionPane.showMessageDialog(this, "Nenhum produto selecionado para deletar.", "Erro", JOptionPane.ERROR_MESSAGE);
         }
+
+    }
+
+    private void updateSelectedProduct(TableComponent tableComponent) {
+        Long productId = null;
+
+        // Obtém o modelo da tabela
+        DefaultTableModel tableModel = (DefaultTableModel) tableComponent.getProductTable().getModel();
+
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            Boolean isSelected = (Boolean) tableModel.getValueAt(i, 0);
+            if (isSelected) {
+                productId = (Long) tableModel.getValueAt(i, 7); // Obtém o id do produto
+            }
+        }
+
+        // Verifica se a lista de produtos selecionados não está vazia
+        if (productId != null) {
+            // Chame a API para deletar os produtos com os IDs armazenados
+            updateProductsFromApi(productId);
+            tableComponent.loadData(API_URL, Product[].class);
+        } else {
+            JOptionPane.showMessageDialog(this, "Nenhum produto selecionado para edição.", "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+
+    }
+
+    // TODO: FAZER A FUNCIONALIDADE DE FORMA CORRETA
+    private void updateProductsFromApi(Long productId) {
+        // Criar uma instância de RestTemplate
+        RestTemplate restTemplate = new RestTemplate();
+
+        // Chama a API para deletar os produtos
+        String deleteUrl = API_URL + "/" + productId;
+        restTemplate.delete(deleteUrl);
 
     }
 
@@ -295,11 +272,5 @@ public class ProductFrame extends JFrame {
             restTemplate.delete(deleteUrl);
         }
 
-        // Atualiza a lista de produtos após a exclusão
-        try {
-            loadProducts();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
