@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import projectpoo.construction_material_store.domain.Client;
 import projectpoo.construction_material_store.domain.Product;
+import projectpoo.construction_material_store.dto.ProductDTO;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -36,7 +37,7 @@ public class TableComponent {
         DefaultTableModel tableModel = createTableModel(items);
 
         // Configuração adicional específica para Produtos
-        if (items instanceof Product[]) {
+        if (items instanceof ProductDTO[]) {
             // Configura a tabela
             productTable= new JTable(tableModel);
             configureProductTable(productTable);  // Configurações específicas para Produto
@@ -76,15 +77,15 @@ public class TableComponent {
         // para gerar o modelo de tabela conforme necessário.
 
         // Exemplo para produtos:
-        if (items instanceof Product[]) {
+        if (items instanceof ProductDTO[]) {
             String[] columnNames = {"Selecionar", "Nome", "Código", "Estoque Total", "Estoque Mínimo", "Preço", "Unidade", "ID"};
             DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
 
-            for (Product product : (Product[]) items) {
+            for (ProductDTO product : (ProductDTO[]) items) {
                 tableModel.addRow(new Object[]{
                         false,
                         product.getName(),
-                        product.getCodProcuct(),
+                        product.getCodProduct(),
                         product.getTotalStock(),
                         product.getMinStock(),
                         product.getPrice(),

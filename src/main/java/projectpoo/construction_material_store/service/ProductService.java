@@ -30,8 +30,8 @@ public class ProductService {
     }
 
     // Método para buscar um produto pelo id
-    public Optional<Product> getProductById(Long id) {
-        return productRepository.findById(id);
+    public Product getProductById(long id) {
+        return productRepository.findProductById(id);
     }
 
     // Método para deletar um produto

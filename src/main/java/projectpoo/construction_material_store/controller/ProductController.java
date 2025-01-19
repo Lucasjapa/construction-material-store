@@ -1,13 +1,17 @@
 package projectpoo.construction_material_store.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import projectpoo.construction_material_store.domain.Product;
 import projectpoo.construction_material_store.dto.ProductDTO;
 import projectpoo.construction_material_store.service.ProductService;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/products")
@@ -26,17 +30,44 @@ public class ProductController {
 
     @GetMapping
     // Mapeia uma requisição GET para buscar todos os produtos
-    public List<Product> getAllProducts() {
-        // Retorna a lista de todos os produtos disponíveis
-        return productService.getAllProducts();
+    public List<ProductDTO> getAllProducts() {
+        return productService.getAllProducts().stream()
+                .map(ProductDTO::new)  // Converte cada produto para ProductDTO
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
     // Mapeia uma requisição GET para buscar um produto pelo seu ID
-    public Product getProductById(@PathVariable Long id) {
-        // Retorna o produto correspondente ao ID fornecido, ou null caso não encontrado
-        return productService.getProductById(id).orElse(null);
+    public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
+        Product product = productService.getProductById(id);
+
+        if (product != null) {
+            return ResponseEntity.ok(new ProductDTO(product));  // Produto encontrado, retorna 200 OK
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);  // Produto não encontrado, retorna 404 Not Found
+        }
     }
+
+    @PutMapping("/{id}")
+    // Mapeia uma requisição PUT para atualizar um produto pelo ID
+    public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody ProductDTO productDTO) {
+        // Verifica se o produto existe
+        Product existingProduct = productService.getProductById(id);
+
+        if (existingProduct != null) {
+            // Converte o DTO para o modelo Product
+            Product updatedProduct = productDTO.toProduct();
+            existingProduct.updateProduct(updatedProduct);
+
+            // Salva o produto atualizado
+            Product savedProduct = productService.saveProduct(existingProduct);
+            return ResponseEntity.ok(savedProduct);
+        } else {
+            // Retorna um status 404 caso o produto não seja encontrado
+            return ResponseEntity.status(404).body(null);
+        }
+    }
+
 
     @DeleteMapping("/{id}")
     // Mapeia uma requisição DELETE para excluir um produto pelo ID

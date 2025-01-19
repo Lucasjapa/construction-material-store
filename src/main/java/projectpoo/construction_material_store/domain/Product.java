@@ -3,8 +3,10 @@ package projectpoo.construction_material_store.domain;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import jakarta.persistence.*;
+import projectpoo.construction_material_store.dto.ProductDTO;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Entity
@@ -24,7 +26,7 @@ public class Product {
     private String name;
 
     @Column(nullable = false)
-    private String codProcuct;
+    private String codProduct;
 
     @Column
     private String description;
@@ -51,9 +53,9 @@ public class Product {
     public Product() {
     }
 
-    public Product(String name, String codProcuct, double totalStock, String description, double minStock, double price, String salesUnit, LocalDateTime expirationDate, Category category) {
+    public Product(String name, String codProduct, double totalStock, String description, double minStock, double price, String salesUnit, LocalDateTime expirationDate, Category category) {
         this.name = name;
-        this.codProcuct = codProcuct;
+        this.codProduct = codProduct;
         this.totalStock = totalStock;
         this.description = (description == null) ? "Sem descrição" : description;
         this.minStock = minStock;
@@ -75,12 +77,12 @@ public class Product {
         this.name = name;
     }
 
-    public String getCodProcuct() {
-        return codProcuct;
+    public String getcodProduct() {
+        return codProduct;
     }
 
-    public void setCodProcuct(String codProcuct) {
-        this.codProcuct = codProcuct;
+    public void setcodProduct(String codProduct) {
+        this.codProduct = codProduct;
     }
 
     public Optional<String> getDescription() {
@@ -171,5 +173,18 @@ public class Product {
             }
             throw new IllegalArgumentException("Categoria inválida: " + description);
         }
+    }
+    
+    public void updateProduct(Product product){
+
+        this.name = product.getName();
+        this.codProduct = product.getcodProduct();
+        this.totalStock = product.getTotalStock();
+        this.description = product.getDescription().orElse("");
+        this.minStock = product.getMinStock();
+        this.price = product.getPrice();
+        this.salesUnit = product.getSalesUnit();
+        this.expirationDate = product.getExpirationDate().orElse(null);
+        this.category = product.getCategory();
     }
 }
