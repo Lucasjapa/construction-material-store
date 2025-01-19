@@ -8,9 +8,7 @@ import projectpoo.construction_material_store.domain.Product;
 import projectpoo.construction_material_store.dto.ProductDTO;
 import projectpoo.construction_material_store.service.ProductService;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController

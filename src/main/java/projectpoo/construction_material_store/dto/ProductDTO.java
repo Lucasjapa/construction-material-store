@@ -130,11 +130,16 @@ public class ProductDTO {
     // Método para converter de ProductDTO para Product
     public Product toProduct() {
         Product.Category categoryEnum = Product.Category.fromDescription(category);
-        //TODO: Criar um utils para jogar essa conversão nele, Criar o DateTimeFormatter com o padrão adequado
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-        // Converter para LocalDateTime
-        LocalDateTime expirationDateformatted = LocalDateTime.parse(this.expirationDate + " 00:00:00", formatter);
-
+        LocalDateTime expirationDateformatted;
+        if(!this.expirationDate.isEmpty()) {
+            //TODO: Criar um utils para jogar essa conversão nele, Criar o DateTimeFormatter com o padrão adequado
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+            // Converter para LocalDateTime
+            expirationDateformatted = LocalDateTime.parse(this.expirationDate + " 00:00:00", formatter);
+        } else {
+            expirationDateformatted = null;
+        }
+        
         return new Product(
                 this.name,
                 this.codProduct,

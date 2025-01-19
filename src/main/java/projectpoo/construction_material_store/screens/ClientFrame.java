@@ -1,6 +1,7 @@
 package projectpoo.construction_material_store.screens;
 
 import projectpoo.construction_material_store.domain.Product;
+import projectpoo.construction_material_store.dto.ProductDTO;
 import projectpoo.construction_material_store.screens.components.TableComponent;
 
 import javax.swing.*;
@@ -34,7 +35,7 @@ public class ClientFrame extends JFrame {
         TableComponent tableComponent = new TableComponent(productPanel);
 
         try {
-            tableComponent.loadData(API_URL, Product[].class);
+            tableComponent.loadData(API_URL, ProductDTO[].class);
         } catch (Exception e) {
             e.printStackTrace();
         }
