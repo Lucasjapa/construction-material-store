@@ -2,6 +2,7 @@ package projectpoo.construction_material_store.screens;
 
 import org.springframework.web.client.RestTemplate;
 import projectpoo.construction_material_store.dto.ProductDTO;
+import projectpoo.construction_material_store.screens.components.BackButton;
 import projectpoo.construction_material_store.screens.components.ProductModal;
 import projectpoo.construction_material_store.screens.components.TableComponent;
 
@@ -14,8 +15,10 @@ import java.util.List;
 public class ProductFrame extends JFrame {
 
     private static final String API_URL = "http://localhost:8080/products"; // URL da sua API
+    private final MainScreen mainScreen;
 
-    public ProductFrame() {
+    public ProductFrame(MainScreen mainScreen) {
+        this.mainScreen = mainScreen;
         setTitle("Tela de Produtos");
         setSize(700, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -51,24 +54,34 @@ public class ProductFrame extends JFrame {
     private JPanel getButtonPanel(TableComponent tableComponent) {
         ProductModal productModal = new ProductModal();
 
-        // Painel de botões
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        // Painel principal de botões com BorderLayout
+        JPanel buttonPanel = new JPanel(new BorderLayout());
 
-        // Adiciona um botão para criar um novo produto
+        // Botão "Voltar"
+        BackButton btnBack = new BackButton(this, mainScreen);
+
+        // Painel para o botão "Voltar" no lado esquerdo
+        JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        leftPanel.add(btnBack);
+
+        // Painel para os outros botões no lado direito
+        JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnCreateProduct = new JButton("Criar Produto");
         btnCreateProduct.addActionListener(e -> productModal.productActionModal(tableComponent, null));
-        buttonPanel.add(btnCreateProduct);
+        rightPanel.add(btnCreateProduct);
 
-        // Adiciona um botão para criar um novo produto
         JButton btnUpdateProduct = new JButton("Editar Produto");
         btnUpdateProduct.addActionListener(e -> updateSelectedProduct(tableComponent, productModal));
-        buttonPanel.add(btnUpdateProduct);
+        rightPanel.add(btnUpdateProduct);
 
-        // Botão para deletar os produtos selecionados
         JButton btnDeleteSelected = new JButton("Deletar Selecionados");
         btnDeleteSelected.addActionListener(e -> deleteSelectedProducts(tableComponent));
-        buttonPanel.add(btnDeleteSelected);
+        rightPanel.add(btnDeleteSelected);
+
+        // Adiciona os painéis ao painel principal
+        buttonPanel.add(leftPanel, BorderLayout.WEST);  // Botão "Voltar" à esquerda
+        buttonPanel.add(rightPanel, BorderLayout.EAST); // Outros botões à direita
+
         return buttonPanel;
     }
 
