@@ -34,6 +34,14 @@ public class ProductController {
                 .collect(Collectors.toList());
     }
 
+    @GetMapping("/searchproducts/{name}")
+    // Mapeia uma requisição GET para buscar todos os produtos pelo nome informado
+    public List<ProductDTO> getProductsByName(@PathVariable String name) {
+        return productService.getProductsByName(name).stream()
+                .map(ProductDTO::new)  // Converte cada produto para ProductDTO
+                .collect(Collectors.toList());
+    }
+
     @GetMapping("/{id}")
     // Mapeia uma requisição GET para buscar um produto pelo seu ID
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
@@ -46,7 +54,7 @@ public class ProductController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/updateproduct/{id}")
     // Mapeia uma requisição PUT para atualizar um produto pelo ID
     public ResponseEntity<Product> updateProduct(@PathVariable Long id, @RequestBody ProductDTO productDTO) {
         // Verifica se o produto existe
