@@ -43,18 +43,19 @@ public class MainScreen extends JFrame {
     }
 
     private void openProductFrame() {
-        // Abre a tela de produto
-        ProductFrame productFrame = new ProductFrame();
+        // Abre a tela de produtos
+        ProductFrame productFrame = new ProductFrame(this); // Passa a MainScreen como referência
         productFrame.setVisible(true);
-        this.setVisible(false); // Fecha a tela inicial
+        this.setVisible(false); // Apenas esconde a MainScreen
     }
 
     private void openClientFrame() {
-        // Abre a tela de produto
-        ClientFrame clientFrame = new ClientFrame();
+        // Abre a tela de clientes
+        ClientFrame clientFrame = new ClientFrame(this); // Passa a MainScreen como referência
         clientFrame.setVisible(true);
-        this.setVisible(false); // Fecha a tela inicial
+        this.setVisible(false); // Apenas esconde a MainScreen
     }
+
 }
 
 

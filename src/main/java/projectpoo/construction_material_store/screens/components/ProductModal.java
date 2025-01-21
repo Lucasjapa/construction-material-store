@@ -32,17 +32,21 @@ public class ProductModal extends JDialog {
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Campos de entrada
-        panel.add(new JLabel("Nome:"));
+        panel.add(new JLabel("Nome: (ex: Cimento Poty)"));
         JTextField nameField = new JTextField(isEdit ? productDto.getName() : "");
         panel.add(nameField);
+
+        panel.add(new JLabel("Unidade de Venda: (ex: Saco de 50Kg)"));
+        JTextField salesUnitField = new JTextField(isEdit ? productDto.getSalesUnit() : "");
+        panel.add(salesUnitField);
+
+        panel.add(new JLabel("Descrição: (Opcional)"));
+        JTextField descriptionField = new JTextField(isEdit ? productDto.getDescription() : "");
+        panel.add(descriptionField);
 
         panel.add(new JLabel("Código do Produto:"));
         JTextField codProductField = new JTextField(isEdit ? productDto.getCodProduct() : "");
         panel.add(codProductField);
-
-        panel.add(new JLabel("Descrição:"));
-        JTextField descriptionField = new JTextField(isEdit ? productDto.getDescription() : "");
-        panel.add(descriptionField);
 
         panel.add(new JLabel("Quantidade em Estoque:"));
         JTextField totalStockField = new JTextField(isEdit ? String.valueOf(productDto.getTotalStock()) : "");
@@ -56,9 +60,7 @@ public class ProductModal extends JDialog {
         JTextField priceField = new JTextField(isEdit ? String.valueOf(productDto.getPrice()) : "");
         panel.add(priceField);
 
-        panel.add(new JLabel("Unidade de Venda:"));
-        JTextField salesUnitField = new JTextField(isEdit ? productDto.getSalesUnit() : "");
-        panel.add(salesUnitField);
+
 
         panel.add(new JLabel("Data de Validade: (dd-mm-aaaa)"));
         JTextField expirationDateField = new JTextField(isEdit ? productDto.getExpirationDate() : "");
