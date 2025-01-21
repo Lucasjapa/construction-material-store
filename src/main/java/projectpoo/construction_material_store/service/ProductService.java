@@ -26,7 +26,7 @@ public class ProductService {
 
     // Método para buscar um produto pelo nome
     public List<Product> getProductsByName(String name) {
-        return productRepository.findByName(name);
+        return productRepository.findByNameContainingIgnoreCase(name);
     }
 
     // Método para buscar um produto pelo id

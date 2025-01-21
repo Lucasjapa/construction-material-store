@@ -9,6 +9,8 @@ import projectpoo.construction_material_store.screens.components.TableComponent;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,13 +36,21 @@ public class ProductFrame extends JFrame {
         // Inicializa o painel e adiciona ao layout
         JPanel productPanel = new JPanel();
         productPanel.setLayout(new BoxLayout(productPanel, BoxLayout.Y_AXIS)); // Alinha verticalmente os componentes
-        add(new JScrollPane(productPanel), BorderLayout.CENTER);
+        JScrollPane scrollPane = new JScrollPane(productPanel);
+        //add(new JScrollPane(productPanel), BorderLayout.CENTER);
 
         // Cria a instância do TableComponent
         TableComponent tableComponent = new TableComponent(productPanel);
-        JPanel buttonPanel = getButtonPanel(tableComponent);
+
+        // Adiciona o painel de busca acima da tabela
+        JPanel searchPanel = getSearchPanel(tableComponent);
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.add(searchPanel, BorderLayout.NORTH); // Barra de busca acima
+        centerPanel.add(scrollPane, BorderLayout.CENTER); // Tabela no centro
+        add(centerPanel, BorderLayout.CENTER);
 
         // Adiciona o painel de botões ao layout no local apropriado (parte inferior)
+        JPanel buttonPanel = getButtonPanel(tableComponent);
         add(buttonPanel, BorderLayout.SOUTH);
 
         // Tenta carregar os produtos da API
@@ -49,6 +59,44 @@ public class ProductFrame extends JFrame {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private JPanel getSearchPanel(TableComponent tableComponent) {
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); // Layout alinhado à esquerda
+
+        // Campo de busca
+        JTextField searchField = new JTextField(20); // Tamanho do campo
+        searchPanel.add(searchField);
+
+        // Botão de busca
+        JButton searchButton = new JButton("Buscar");
+        searchPanel.add(searchButton);
+
+        // Botão para listar todos os produtos
+        JButton listButton = new JButton("Listar todos");
+        searchPanel.add(listButton);
+
+        // Ação do botão de busca
+        searchButton.addActionListener(e -> {
+            String searchParam = searchField.getText().trim();
+            if (!searchParam.isEmpty()) {
+                try {
+                    String searchUrl = API_URL + "/searchproducts/" + URLEncoder.encode(searchParam, StandardCharsets.UTF_8);
+                    // Carrega os dados da API usando o TableComponent
+                    tableComponent.loadData(searchUrl, ProductDTO[].class);
+
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(searchPanel, "Erro ao buscar produtos.", "Erro", JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
+                }
+            } else {
+                JOptionPane.showMessageDialog(searchPanel, "Digite um termo para buscar.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        listButton.addActionListener(e -> tableComponent.loadData(API_URL, ProductDTO[].class));
+
+        return searchPanel;
     }
 
     private JPanel getButtonPanel(TableComponent tableComponent) {

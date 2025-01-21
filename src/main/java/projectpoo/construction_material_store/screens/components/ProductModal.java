@@ -171,7 +171,7 @@ public class ProductModal extends JDialog {
         RestTemplate restTemplate = new RestTemplate();
 
         // Envia a requisição PUT com o identificador do produto
-        String url = API_URL + "/" + productDto.getId();  // Supondo que o ID do produto seja parte da URL para atualização
+        String url = API_URL + "/updateproduct/" + productDto.getId();  // Supondo que o ID do produto seja parte da URL para atualização
         HttpEntity<ProductDTO> request = new HttpEntity<>(productDto);
         ResponseEntity<Product> response = restTemplate.exchange(url, HttpMethod.PUT, request, Product.class);
 
