@@ -43,13 +43,13 @@ public class Client {
         this.createdAt = LocalDateTime.now(); // Define a data de cadastro automaticamente
     }
 
-    public Client(String cpfCnpj, String name, String address, String phoneNumber, String email, LocalDateTime createdAt, Type clientType) {
+    public Client(String cpfCnpj, String name, String address, String phoneNumber, String email, Type clientType) {
         this.cpfCnpj = cpfCnpj;
         this.name = name;
         this.address = address;
         this.phoneNumber = phoneNumber;
         this.email = email;
-        this.createdAt = createdAt;
+        this.createdAt = LocalDateTime.now();
         this.clientType = clientType;
     }
 

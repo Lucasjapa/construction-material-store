@@ -3,7 +3,7 @@ package projectpoo.construction_material_store.screens.components;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import projectpoo.construction_material_store.domain.Client;
+import projectpoo.construction_material_store.dto.ClientDTO;
 import projectpoo.construction_material_store.dto.ProductDTO;
 
 import javax.swing.*;
@@ -13,7 +13,7 @@ import java.awt.*;
 
 public class TableComponent {
 
-    private JPanel panel;
+    private final JPanel panel;
     private JTable productTable;
     private JTable clientTable;
 
@@ -38,18 +38,20 @@ public class TableComponent {
         // Configuração adicional específica para Produtos
         if (items instanceof ProductDTO[]) {
             // Configura a tabela
-            productTable= new JTable(tableModel);
-            configureProductTable(productTable);  // Configurações específicas para Produto
-        }
-        else {
+            productTable = new JTable(tableModel);
+            configureProductTable(productTable);
+            JScrollPane scrollPane = new JScrollPane(productTable);
+            // Configurações específicas para Produto
+        } else if (items instanceof ClientDTO[]) {
             // Configura a tabela
-            clientTable= new JTable(tableModel);
+            clientTable = new JTable(tableModel);
             configureClientTable(clientTable); // Configuração genérica
+            JScrollPane scrollPane = new JScrollPane(clientTable);
+            panel.add(scrollPane);
         }
 
         // Adiciona a tabela ao painel
-        JScrollPane scrollPane = new JScrollPane(productTable);
-        panel.add(scrollPane);
+
 
         // Revalida e repinta o painel
         panel.revalidate();
@@ -94,11 +96,11 @@ public class TableComponent {
             }
 
             return tableModel;
-        } else if (items instanceof Client[]) {
+        } else if (items instanceof ClientDTO[]) {
             String[] columnNames = {"Selecionar", "Nome", "Email", "Telefone", "ID"};
             DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
 
-            for (Client client : (Client[]) items) {
+            for (ClientDTO client : (ClientDTO[]) items) {
                 tableModel.addRow(new Object[]{
                         false,
                         client.getName(),
@@ -130,9 +132,9 @@ public class TableComponent {
         table.getColumnModel().getColumn(0).setCellRenderer(new JCheckBoxRenderer()); // Renderer para exibir o JCheckBox
 
         // Ocultar a coluna "ID"
-        table.getColumnModel().getColumn(7).setMaxWidth(0);
-        table.getColumnModel().getColumn(7).setMinWidth(0);
-        table.getColumnModel().getColumn(7).setPreferredWidth(0);
+        table.getColumnModel().getColumn(4).setMaxWidth(0);
+        table.getColumnModel().getColumn(4).setMinWidth(0);
+        table.getColumnModel().getColumn(4).setPreferredWidth(0);
     }
 
     static class JCheckBoxRenderer extends JCheckBox implements TableCellRenderer {

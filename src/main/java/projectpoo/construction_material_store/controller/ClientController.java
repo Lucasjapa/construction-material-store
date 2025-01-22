@@ -4,9 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import projectpoo.construction_material_store.domain.Client;
+import projectpoo.construction_material_store.dto.ClientDTO;
+import projectpoo.construction_material_store.dto.ProductDTO;
 import projectpoo.construction_material_store.service.ClientService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/clients")
@@ -18,16 +21,18 @@ public class ClientController {
 
     @PostMapping
     // Mapeia uma requisição POST para criar um novo produto
-    public Client createClient(@RequestBody Client client) {
+    public Client createClient(@RequestBody ClientDTO client) {
         // Chama o serviço para salvar o produto recebido no corpo da requisição
-        return clientService.saveClient(client);
+        return clientService.saveClient(client.toclient());
     }
 
     @GetMapping
     // Mapeia uma requisição GET para buscar todos os produtos
-    public List<Client> getAllClients() {
+    public List<ClientDTO> getAllClients() {
         // Retorna a lista de todos os produtos disponíveis
-        return clientService.getAllClients();
+        return clientService.getAllClients().stream()
+                .map(ClientDTO::new)  // Converte cada produto para ProductDTO
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
