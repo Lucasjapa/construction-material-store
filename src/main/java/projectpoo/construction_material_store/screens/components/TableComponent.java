@@ -41,7 +41,7 @@ public class TableComponent {
             productTable = new JTable(tableModel);
             configureProductTable(productTable);
             JScrollPane scrollPane = new JScrollPane(productTable);
-            // Configurações específicas para Produto
+            panel.add(scrollPane);
         } else if (items instanceof ClientDTO[]) {
             // Configura a tabela
             clientTable = new JTable(tableModel);
@@ -148,6 +148,10 @@ public class TableComponent {
 
     public JTable getProductTable() {
         return productTable;
+    }
+
+    public JTable getClientTable() {
+        return clientTable;
     }
 
 }

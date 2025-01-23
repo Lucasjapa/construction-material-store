@@ -1,11 +1,11 @@
 package projectpoo.construction_material_store.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import projectpoo.construction_material_store.domain.Client;
 import projectpoo.construction_material_store.dto.ClientDTO;
-import projectpoo.construction_material_store.dto.ProductDTO;
 import projectpoo.construction_material_store.service.ClientService;
 
 import java.util.List;
@@ -29,17 +29,49 @@ public class ClientController {
     @GetMapping
     // Mapeia uma requisição GET para buscar todos os produtos
     public List<ClientDTO> getAllClients() {
-        // Retorna a lista de todos os produtos disponíveis
         return clientService.getAllClients().stream()
                 .map(ClientDTO::new)  // Converte cada produto para ProductDTO
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/searchclients/{name}")
     // Mapeia uma requisição GET para buscar os clientes que contenha aquele nome
-    public List<Client> getClientByName(@PathVariable String name) {
-        // Retorna o produto correspondente ao ID fornecido, ou null caso não encontrado
-        return clientService.getClientsByName(name);
+    public List<ClientDTO> getClientByName(@PathVariable String name) {
+        return clientService.getClientsByName(name).stream()
+                .map(ClientDTO::new)
+                .collect(Collectors.toList());
+    }
+
+    @GetMapping("/{id}")
+    // Mapeia uma requisição GET para buscar um cliente pelo seu ID
+    public ResponseEntity<ClientDTO> getClientById(@PathVariable Long id) {
+        Client client = clientService.getClientById(id);
+
+        if (client != null) {
+            return ResponseEntity.ok(new ClientDTO(client));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+    @PutMapping("/updatecliente/{id}")
+    // Mapeia uma requisição PUT para atualizar um produto pelo ID
+    public ResponseEntity<Client> updateClient(@PathVariable Long id, @RequestBody ClientDTO clientDTO) {
+        // Verifica se o produto existe
+        Client existingClient = clientService.getClientById(id);
+
+        if (existingClient != null) {
+            // Converte o DTO para o modelo Product
+            Client updatedClient = clientDTO.toclient();
+            existingClient.updateClient(updatedClient);
+
+            // Salva o produto atualizado
+            Client savedClient = clientService.saveClient(existingClient);
+            return ResponseEntity.ok(savedClient);
+        } else {
+            // Retorna um status 404 caso o produto não seja encontrado
+            return ResponseEntity.status(404).body(null);
+        }
     }
 
     @DeleteMapping("/{id}")

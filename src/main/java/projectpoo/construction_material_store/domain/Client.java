@@ -117,4 +117,14 @@ public class Client {
         PESSOA_FISICA,
         PESSOA_JURIDICA
     }
+
+    public void updateClient(Client client){
+
+        this.name = client.getName();
+        this.cpfCnpj = client.getCpfCnpj();
+        this.address = client.getAddress();
+        this.phoneNumber = client.getPhoneNumber();
+        this.email = client.getEmail();
+        this.clientType = client.getClientType();
+    }
 }

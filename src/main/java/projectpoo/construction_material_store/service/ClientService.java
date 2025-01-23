@@ -22,11 +22,11 @@ public class ClientService {
     }
 
     public List<Client> getClientsByName(String name) {
-        return clientRepository.findByName(name);
+        return clientRepository.findByNameContainingIgnoreCase(name);
     }
 
-    public void deleteClient(Long id) {
-        clientRepository.deleteById(id);
+    public Client getClientById(long id) {
+        return clientRepository.findClientById(id);
     }
 
     public boolean deleteClientById(Long id) {

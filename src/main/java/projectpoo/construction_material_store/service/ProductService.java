@@ -6,7 +6,6 @@ import projectpoo.construction_material_store.domain.Product;
 import projectpoo.construction_material_store.repository.ProductRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -32,11 +31,6 @@ public class ProductService {
     // Método para buscar um produto pelo id
     public Product getProductById(long id) {
         return productRepository.findProductById(id);
-    }
-
-    // Método para deletar um produto
-    public void deleteProduct(Long id) {
-        productRepository.deleteById(id);
     }
 
     public boolean deleteProductById(Long id) {

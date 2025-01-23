@@ -1,15 +1,18 @@
 package projectpoo.construction_material_store.screens;
 
+import org.springframework.web.client.RestTemplate;
 import projectpoo.construction_material_store.dto.ClientDTO;
-import projectpoo.construction_material_store.dto.ProductDTO;
 import projectpoo.construction_material_store.screens.components.BackButton;
 import projectpoo.construction_material_store.screens.components.ClientModal;
 import projectpoo.construction_material_store.screens.components.TableComponent;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClientFrame extends JFrame {
 
@@ -78,12 +81,12 @@ public class ClientFrame extends JFrame {
             String searchParam = searchField.getText().trim();
             if (!searchParam.isEmpty()) {
                 try {
-                    String searchUrl = API_URL + "/searchproducts/" + URLEncoder.encode(searchParam, StandardCharsets.UTF_8);
+                    String searchUrl = API_URL + "/searchclients/" + URLEncoder.encode(searchParam, StandardCharsets.UTF_8);
                     // Carrega os dados da API usando o TableComponent
-                    tableComponent.loadData(searchUrl, ProductDTO[].class);
+                    tableComponent.loadData(searchUrl, ClientDTO[].class);
 
                 } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(searchPanel, "Erro ao buscar produtos.", "Erro", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(searchPanel, "Erro ao buscar clientes.", "Erro", JOptionPane.ERROR_MESSAGE);
                     ex.printStackTrace();
                 }
             } else {
@@ -91,7 +94,7 @@ public class ClientFrame extends JFrame {
             }
         });
 
-        listButton.addActionListener(e -> tableComponent.loadData(API_URL, ProductDTO[].class));
+        listButton.addActionListener(e -> tableComponent.loadData(API_URL, ClientDTO[].class));
 
         return searchPanel;
     }
@@ -113,11 +116,11 @@ public class ClientFrame extends JFrame {
         rightPanel.add(btnCreateProduct);
 
         JButton btnUpdateProduct = new JButton("Editar Cliente");
-//        btnUpdateProduct.addActionListener(e -> updateSelectedProduct(tableComponent, productModal));
+        btnUpdateProduct.addActionListener(e -> updateSelectedClient(tableComponent, clientModal));
         rightPanel.add(btnUpdateProduct);
 
         JButton btnDeleteSelected = new JButton("Deletar Selecionados");
-//        btnDeleteSelected.addActionListener(e -> deleteSelectedProducts(tableComponent));
+        btnDeleteSelected.addActionListener(e -> deleteSelectedClients(tableComponent));
         rightPanel.add(btnDeleteSelected);
 
         // Adiciona os painéis ao painel principal
@@ -125,5 +128,78 @@ public class ClientFrame extends JFrame {
         buttonPanel.add(rightPanel, BorderLayout.EAST); // Outros botões à direita
 
         return buttonPanel;
+    }
+
+    private void updateSelectedClient(TableComponent tableComponent, ClientModal clientModal) {
+        Long clientId = null;
+
+        // Obtém o modelo da tabela
+        DefaultTableModel tableModel = (DefaultTableModel) tableComponent.getClientTable().getModel();
+
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            Boolean isSelected = (Boolean) tableModel.getValueAt(i, 0);
+            if (isSelected) {
+                clientId = (Long) tableModel.getValueAt(i, 3);
+            }
+        }
+
+        // Verifica se a lista de produtos selecionados não está vazia
+        if (clientId != null) {
+            // Chame a API para deletar os produtos com os IDs armazenados
+            ClientDTO clientDTO = getClientById(clientId);
+            clientModal.clientActionModal(tableComponent, clientDTO);
+        } else {
+            JOptionPane.showMessageDialog(this, "Nenhum cliente selecionado para edição.", "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+
+    }
+
+    private ClientDTO getClientById(Long ClientId) {
+        // Criar uma instância de RestTemplate
+        RestTemplate restTemplate = new RestTemplate();
+
+        // Chama a API para obter o produto
+        String getUrl = API_URL + "/" + ClientId;
+        return restTemplate.getForObject(getUrl, ClientDTO.class);
+    }
+
+    private void deleteSelectedClients(TableComponent tableComponent) {
+        // Lista dos IDs dos produtos a serem deletados
+        List<Long> clientsToDelete = new ArrayList<>();
+
+        // Obtém o modelo da tabela
+        DefaultTableModel tableModel = (DefaultTableModel) tableComponent.getClientTable().getModel();
+
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            Boolean isSelected = (Boolean) tableModel.getValueAt(i, 0);
+            if (isSelected) {
+                Long clientId = (Long) tableModel.getValueAt(i, 3); // Obtém o id do produto
+                if (clientId != null) {
+                    clientsToDelete.add(clientId); // Adiciona o id à lista
+                }
+            }
+        }
+
+        // Verifica se a lista de produtos selecionados não está vazia
+        if (!clientsToDelete.isEmpty()) {
+            // Chame a API para deletar os produtos com os IDs armazenados
+            deleteClientsFromApi(clientsToDelete);
+            tableComponent.loadData(API_URL, ClientDTO[].class);
+        } else {
+            JOptionPane.showMessageDialog(this, "Nenhum cliente selecionado para deletar.", "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // Método para deletar os produtos da API
+    private void deleteClientsFromApi(List<Long> clientsToDelete) {
+        // Criar uma instância de RestTemplate
+        RestTemplate restTemplate = new RestTemplate();
+
+        // Chama a API para deletar os produtos
+        for (Long clientId : clientsToDelete) {
+            String deleteUrl = API_URL + "/" + clientId;
+            restTemplate.delete(deleteUrl);
+        }
+
     }
 }
