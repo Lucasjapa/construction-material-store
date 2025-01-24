@@ -21,7 +21,7 @@ public class ClientFrame extends JFrame {
 
     public ClientFrame(MainScreen mainScreen) {
         this.mainScreen = mainScreen;
-        setTitle("Tela de Produtos");
+        setTitle("Clientes");
         setSize(700, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
@@ -37,7 +37,6 @@ public class ClientFrame extends JFrame {
         JPanel clientPanel = new JPanel();
         clientPanel.setLayout(new BoxLayout(clientPanel, BoxLayout.Y_AXIS));
         JScrollPane scrollPane = new JScrollPane(clientPanel);// Alinha verticalmente os componentes
-//        add(new JScrollPane(clientPanel), BorderLayout.CENTER);
 
         // Cria a instância do TableComponent
         TableComponent tableComponent = new TableComponent(clientPanel);

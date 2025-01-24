@@ -10,7 +10,7 @@ public class ClientDTO {
     private String address;
     private String phoneNumber;
     private String email;
-    private String clientType;  // Usando String ao invés de enum para facilitar a conversão em APIs
+    private String clientType;
 
     // Construtores
     public ClientDTO() {}
