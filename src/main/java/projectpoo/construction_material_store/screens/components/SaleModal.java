@@ -1,26 +1,22 @@
 package projectpoo.construction_material_store.screens.components;
 
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.client.RestTemplate;
-import projectpoo.construction_material_store.domain.Client;
 import projectpoo.construction_material_store.dto.ClientDTO;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class ClientModal extends JDialog {
+public class SaleModal extends JDialog {
 
-    private static final String API_URL = "http://localhost:8080/clients"; // URL da sua API
+    private static final String API_URL = "http://localhost:8080/sales"; // URL da sua API
 
-    public ClientModal() {
+    public SaleModal() {
     }
 
-    public void clientActionModal(TableComponent tableComponent, ClientDTO clientDto) {
+    //TODO:Lucas Cavalcante - Fazer a tela de criar venda.
+    public void saleActionModal(TableComponent tableComponent, ClientDTO clientDto) {
         // Determina se é criação ou edição
         boolean isEdit = clientDto != null;
-        String dialogTitle = isEdit ? "Editar Cliente" : "Criar Cliente";
+        String dialogTitle = isEdit ? "Editar venda" : "Criar venda";
 
         JDialog dialog = new JDialog(this, dialogTitle, true);
         dialog.setSize(650, 400);
@@ -102,12 +98,12 @@ public class ClientModal extends JDialog {
                     clientDto.setEmail(email);
                     clientDto.setClientType(clientType);
 
-                    updateClient(clientDto);
+//                    updateClient(clientDto);
                     JOptionPane.showMessageDialog(dialog, "Cliente atualizado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     ClientDTO newClient = new ClientDTO(name, cpfCnpj, address, phoneNumber, email, clientType);
 
-                    createClient(newClient);
+//                    createClient(newClient);
                     JOptionPane.showMessageDialog(dialog, "Cliente criado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                 }
 
@@ -154,30 +150,5 @@ public class ClientModal extends JDialog {
     // Metodo para validar email
     private boolean isValidEmail(String email) {
         return email.matches("^[A-Za-z0-9+_.-]+@(.+)$");
-    }
-
-    private void createClient(ClientDTO newClient) throws Exception {
-        RestTemplate restTemplate = new RestTemplate();
-
-        // Envia a requisição POST
-        HttpEntity<ClientDTO> request = new HttpEntity<>(newClient);
-        ResponseEntity<Client> response = restTemplate.exchange(API_URL, HttpMethod.POST, request, Client.class);
-
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            throw new Exception("Erro ao criar produto: " + response.getStatusCode());
-        }
-    }
-
-    private void updateClient(ClientDTO clientDTO) throws Exception {
-        RestTemplate restTemplate = new RestTemplate();
-
-        // Envia a requisição PUT com o identificador do produto
-        String url = API_URL + "/updatecliente/" + clientDTO.getId();  // Supondo que o ID do produto seja parte da URL para atualização
-        HttpEntity<ClientDTO> request = new HttpEntity<>(clientDTO);
-        ResponseEntity<Client> response = restTemplate.exchange(url, HttpMethod.PUT, request, Client.class);
-
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            throw new Exception("Erro ao atualizar produto: " + response.getStatusCode());
-        }
     }
 }
