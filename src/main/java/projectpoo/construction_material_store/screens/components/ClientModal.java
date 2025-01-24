@@ -27,7 +27,7 @@ public class ClientModal extends JDialog {
         dialog.setLocationRelativeTo(this);
 
         // Painel para os campos
-        JPanel panel = new JPanel(new GridLayout(13, 2, 5, 5));
+        JPanel panel = new JPanel(new GridLayout(11, 2, 5, 5));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Campos de entrada
@@ -39,7 +39,7 @@ public class ClientModal extends JDialog {
         JTextField cpfCnpjField = new JTextField(isEdit ? clientDto.getCpfCnpj() : "");
         panel.add(cpfCnpjField);
 
-        panel.add(new JLabel("Endereço:"));
+        panel.add(new JLabel("Endereço: (CEP, Rua, Número, Bairro"));
         JTextField addressField = new JTextField(isEdit ? clientDto.getAddress() : "");
         panel.add(addressField);
 
@@ -51,14 +51,6 @@ public class ClientModal extends JDialog {
         JTextField emailField = new JTextField(isEdit ? String.valueOf(clientDto.getEmail()) : "");
         panel.add(emailField);
 
-        panel.add(new JLabel("Tipo pessoa:"));
-        JComboBox<String> clientTypeOption = new JComboBox<>(new String[]{
-                "PESSOA_FISICA", "PESSOA_JURIDICA"
-        });
-        // Define a categoria selecionada com base no valor do DTO
-        clientTypeOption.setSelectedItem(isEdit ? clientDto.getClientType() : "");
-        panel.add(clientTypeOption);
-
         // Botão de salvar
         JButton btnSave = new JButton(isEdit ? "Atualizar" : "Salvar");
         btnSave.addActionListener(e -> {
@@ -67,22 +59,42 @@ public class ClientModal extends JDialog {
             String address = addressField.getText();
             String phoneNumber = phoneNumberField.getText();
             String email = emailField.getText();
-            String clientType = clientTypeOption.getSelectedItem().toString();
+
+            // Definir o tipo de cliente automaticamente com base no isValidCpfCnpj
+            String clientType;
+            if (isValidCpfCnpj(cpfCnpj)) {
+                clientType = (cpfCnpj.length() == 11) ? "PESSOA_FISICA" : "PESSOA_JURIDICA";
+            } else {
+                JOptionPane.showMessageDialog(dialog, "CPF/CNPJ inválido. Insira 11 dígitos para CPF ou 14 dígitos para CNPJ.", "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
 
             // Validação dos campos
-            if (name.isEmpty() || cpfCnpj.isEmpty() || address.isEmpty() ||
-                    phoneNumber.isEmpty() || email.isEmpty()) {
+            if (name.isEmpty() || cpfCnpj.isEmpty() || address.isEmpty() || phoneNumber.isEmpty() || email.isEmpty()) {
                 JOptionPane.showMessageDialog(dialog, "Todos os campos são obrigatórios.", "Erro", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            // Criar produto
+            if (!isValidName(name)) {
+                JOptionPane.showMessageDialog(dialog, "Nome inválido (Somente letras são permitidas).", "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (!isValidPhoneNumber(phoneNumber)) {
+                JOptionPane.showMessageDialog(dialog, "Número de telefone inválido.", "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (!isValidEmail(email)) {
+                JOptionPane.showMessageDialog(dialog, "Email inválido.", "Erro", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Criar ou atualizar o cliente
             btnSave.setEnabled(false); // Desabilita o botão para evitar múltiplos cliques
 
             try {
-                // Criação ou atualização
                 if (isEdit) {
-                    // Atualizar o produto existente
                     clientDto.setName(name);
                     clientDto.setCpfCnpj(cpfCnpj);
                     clientDto.setAddress(address);
@@ -90,32 +102,59 @@ public class ClientModal extends JDialog {
                     clientDto.setEmail(email);
                     clientDto.setClientType(clientType);
 
-                    updateClient(clientDto); // Chame o método de atualização
+                    updateClient(clientDto);
                     JOptionPane.showMessageDialog(dialog, "Cliente atualizado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    // Cria o objeto Product com os novos atributos
                     ClientDTO newClient = new ClientDTO(name, cpfCnpj, address, phoneNumber, email, clientType);
 
-                    // Criar um cliente
                     createClient(newClient);
                     JOptionPane.showMessageDialog(dialog, "Cliente criado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                 }
 
-                tableComponent.loadData(API_URL, ClientDTO[].class); // Atualizar lista de produtos
+                tableComponent.loadData(API_URL, ClientDTO[].class); // Atualizar a lista de clientes
                 dialog.dispose(); // Fechar o diálogo
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(dialog, "Erro ao criar cliente", "Erro", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(dialog, "Erro ao salvar cliente.", "Erro", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
             } finally {
                 btnSave.setEnabled(true); // Reativa o botão, mesmo em caso de erro
             }
         });
 
+
         panel.add(new JLabel()); // Espaço vazio para alinhar o botão
         panel.add(btnSave);
 
         dialog.add(panel);
         dialog.setVisible(true);
+    }
+
+
+    // Metodo para validar nome
+    private boolean isValidName(String name){
+        return name.matches("^[a-zA-ZÀ-ÿ\\s]+$");
+    }
+
+    // Metodo para validar CPF ou CNPJ
+    private boolean isValidCpfCnpj(String cpfCnpj) {
+        if (cpfCnpj.matches("^\\d{11}$")) {
+            return true;
+        } else if (cpfCnpj.matches("^\\d{14}$")) {
+            return true;
+        } else {
+            // Caso não seja nem CPF nem CNPJ
+            return false;
+        }
+    }
+
+    // Metodo para validar número de telefone
+    private boolean isValidPhoneNumber(String phoneNumber) {
+        return phoneNumber.matches("(\\+\\d{1,3})?\\d{10,11}");
+    }
+
+    // Metodo para validar email
+    private boolean isValidEmail(String email) {
+        return email.matches("^[A-Za-z0-9+_.-]+@(.+)$");
     }
 
     private void createClient(ClientDTO newClient) throws Exception {
