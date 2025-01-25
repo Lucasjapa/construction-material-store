@@ -1,9 +1,11 @@
 package projectpoo.construction_material_store.screens;
 
 import projectpoo.construction_material_store.dto.ClientDTO;
+import projectpoo.construction_material_store.dto.InvoiceDTO;
 import projectpoo.construction_material_store.dto.ProductDTO;
 import projectpoo.construction_material_store.screens.components.BackButton;
 import projectpoo.construction_material_store.screens.components.ProductModal;
+import projectpoo.construction_material_store.screens.components.SaleModal;
 import projectpoo.construction_material_store.screens.components.TableComponent;
 
 import javax.swing.*;
@@ -13,7 +15,7 @@ import java.nio.charset.StandardCharsets;
 
 public class SalesFrame extends JFrame {
 
-    private static final String API_URL = "http://localhost:8080/sales"; // URL da sua API
+    private static final String API_URL = "http://localhost:8080/invoices"; // URL da sua API
     private final MainScreen mainScreen;
 
     public SalesFrame(MainScreen mainScreen) {
@@ -31,12 +33,12 @@ public class SalesFrame extends JFrame {
         add(label, BorderLayout.NORTH);
 
         // Inicializa o painel e adiciona ao layout
-        JPanel clientPanel = new JPanel();
-        clientPanel.setLayout(new BoxLayout(clientPanel, BoxLayout.Y_AXIS));
-        JScrollPane scrollPane = new JScrollPane(clientPanel);// Alinha verticalmente os componentes
+        JPanel salesPanel = new JPanel();
+        salesPanel.setLayout(new BoxLayout(salesPanel, BoxLayout.Y_AXIS));
+        JScrollPane scrollPane = new JScrollPane(salesPanel);// Alinha verticalmente os componentes
 
         // Cria a instância do TableComponent
-        TableComponent tableComponent = new TableComponent(clientPanel);
+        TableComponent tableComponent = new TableComponent(salesPanel);
 
         // Adiciona o painel de busca acima da tabela
         JPanel searchPanel = getSearchPanel(tableComponent);
@@ -50,7 +52,7 @@ public class SalesFrame extends JFrame {
         add(buttonPanel, BorderLayout.SOUTH);
 
         try {
-            tableComponent.loadData(API_URL, ClientDTO[].class);
+            tableComponent.loadData(API_URL, InvoiceDTO[].class);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -79,7 +81,7 @@ public class SalesFrame extends JFrame {
                 try {
                     String searchUrl = API_URL + "/searchproducts/" + URLEncoder.encode(searchParam, StandardCharsets.UTF_8);
                     // Carrega os dados da API usando o TableComponent
-                    tableComponent.loadData(searchUrl, ProductDTO[].class);
+                    tableComponent.loadData(searchUrl, InvoiceDTO[].class);
 
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(searchPanel, "Erro ao buscar produtos.", "Erro", JOptionPane.ERROR_MESSAGE);
@@ -90,13 +92,13 @@ public class SalesFrame extends JFrame {
             }
         });
 
-        listButton.addActionListener(e -> tableComponent.loadData(API_URL, ProductDTO[].class));
+        listButton.addActionListener(e -> tableComponent.loadData(API_URL, InvoiceDTO[].class));
 
         return searchPanel;
     }
 
     private JPanel getButtonPanel(TableComponent tableComponent) {
-        ProductModal productModal = new ProductModal();
+        SaleModal saleModal = new SaleModal();
 
         // Painel principal de botões com BorderLayout
         JPanel buttonPanel = new JPanel(new BorderLayout());
@@ -111,7 +113,7 @@ public class SalesFrame extends JFrame {
         // Painel para os outros botões no lado direito
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnCreateProduct = new JButton("Nova Venda");
-//        btnCreateProduct.addActionListener(e -> productModal.productActionModal(tableComponent, null));
+        btnCreateProduct.addActionListener(e -> saleModal.saleActionModal(tableComponent, null));
         rightPanel.add(btnCreateProduct);
 
         JButton btnUpdateProduct = new JButton("Editar Venda");

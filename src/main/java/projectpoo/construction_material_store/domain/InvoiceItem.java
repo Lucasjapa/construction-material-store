@@ -19,10 +19,6 @@ public class InvoiceItem {
     @JoinColumn(name = "id_produto", nullable = false)
     private Product product;
 
-    @ManyToOne
-    @JoinColumn(name = "id_invoice", nullable = false)
-    private Invoice invoice;
-
     @Column(nullable = false)
     private Integer quantitySale;
 
@@ -32,19 +28,14 @@ public class InvoiceItem {
     public InvoiceItem() {
     }
 
-    public InvoiceItem(Product product, Invoice invoice, Integer quantitySale, Double unitPrice) {
+    public InvoiceItem(Product product, Integer quantitySale, Double unitPrice) {
         this.product = product;
-        this.invoice = invoice;
         this.quantitySale = quantitySale;
         this.unitPrice = unitPrice;
     }
 
-    public Invoice getInvoice() {
-        return invoice;
-    }
-
-    public void setInvoice(Invoice invoice) {
-        this.invoice = invoice;
+    public Long getId() {
+        return id;
     }
 
     public Product getProduct() {
@@ -70,4 +61,6 @@ public class InvoiceItem {
     public void setUnitPrice(Double unitPrice) {
         this.unitPrice = unitPrice;
     }
+
+
 }

@@ -3,13 +3,18 @@ package projectpoo.construction_material_store.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import projectpoo.construction_material_store.domain.Client;
 import projectpoo.construction_material_store.domain.Invoice;
+import projectpoo.construction_material_store.dto.InvoiceDTO;
+import projectpoo.construction_material_store.dto.ProductDTO;
+import projectpoo.construction_material_store.service.ClientService;
 import projectpoo.construction_material_store.service.InvoiceService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/invoice")
+@RequestMapping("/invoices")
 // Define a classe como um controlador REST e mapeia as requisições para o endpoint "/invoice"
 public class InvoiceController {
 
@@ -18,16 +23,17 @@ public class InvoiceController {
 
     @PostMapping
     // Mapeia uma requisição POST para criar um novo produto
-    public Invoice createInvoice(@RequestBody Invoice invoice) {
+    public Invoice createInvoice(@RequestBody InvoiceDTO invoiceDTO) {
         // Chama o serviço para salvar o produto recebido no corpo da requisição
-        return invoiceService.saveInvoice(invoice);
+        return invoiceService.saveInvoice(invoiceDTO);
     }
 
     @GetMapping
     // Mapeia uma requisição GET para buscar todos os produtos
-    public List<Invoice> getAllInvoices() {
-        // Retorna a lista de todos os produtos disponíveis
-        return invoiceService.getAllInvoices();
+    public List<InvoiceDTO> getAllInvoices() {
+        return invoiceService.getAllInvoices().stream()
+                .map(InvoiceDTO::new)  // Converte cada produto para ProductDTO
+                .collect(Collectors.toList());
     }
 
     @GetMapping("/{cpfCnpj}")

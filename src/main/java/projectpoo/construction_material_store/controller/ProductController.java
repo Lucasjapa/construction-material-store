@@ -23,7 +23,7 @@ public class ProductController {
     // Mapeia uma requisição POST para criar um novo produto
     public Product createProduct(@RequestBody ProductDTO product) {
         // Chama o serviço para salvar o produto recebido no corpo da requisição
-        return productService.saveProduct(product.toProduct());
+        return productService.saveProduct(product);
     }
 
     @GetMapping
@@ -61,19 +61,13 @@ public class ProductController {
         Product existingProduct = productService.getProductById(id);
 
         if (existingProduct != null) {
-            // Converte o DTO para o modelo Product
-            Product updatedProduct = productDTO.toProduct();
-            existingProduct.updateProduct(updatedProduct);
-
-            // Salva o produto atualizado
-            Product savedProduct = productService.saveProduct(existingProduct);
+            Product savedProduct = productService.updateProduct(productDTO, existingProduct);
             return ResponseEntity.ok(savedProduct);
         } else {
             // Retorna um status 404 caso o produto não seja encontrado
             return ResponseEntity.status(404).body(null);
         }
     }
-
 
     @DeleteMapping("/{id}")
     // Mapeia uma requisição DELETE para excluir um produto pelo ID

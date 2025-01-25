@@ -1,6 +1,7 @@
 package projectpoo.construction_material_store.domain;
 
 import jakarta.persistence.*;
+import projectpoo.construction_material_store.dto.ClientDTO;
 
 import java.time.LocalDateTime;
 
@@ -119,12 +120,15 @@ public class Client {
     }
 
     public void updateClient(Client client){
-
         this.name = client.getName();
         this.cpfCnpj = client.getCpfCnpj();
         this.address = client.getAddress();
         this.phoneNumber = client.getPhoneNumber();
         this.email = client.getEmail();
         this.clientType = client.getClientType();
+    }
+
+    public ClientDTO toDTO(){
+        return new ClientDTO(this);
     }
 }

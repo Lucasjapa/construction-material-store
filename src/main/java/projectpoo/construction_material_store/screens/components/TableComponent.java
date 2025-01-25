@@ -4,6 +4,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import projectpoo.construction_material_store.dto.ClientDTO;
+import projectpoo.construction_material_store.dto.InvoiceDTO;
 import projectpoo.construction_material_store.dto.ProductDTO;
 
 import javax.swing.*;
@@ -16,6 +17,7 @@ public class TableComponent {
     private final JPanel panel;
     private JTable productTable;
     private JTable clientTable;
+    private JTable invoiceTable;
 
     public TableComponent(JPanel panel) {
         this.panel = panel;
@@ -48,10 +50,13 @@ public class TableComponent {
             configureClientTable(clientTable); // Configuração genérica
             JScrollPane scrollPane = new JScrollPane(clientTable);
             panel.add(scrollPane);
+        } else if (items instanceof InvoiceDTO[]) {
+            // Configura a tabela
+            invoiceTable = new JTable(tableModel);
+            configureInvoiceTable(invoiceTable); // Configuração genérica
+            JScrollPane scrollPane = new JScrollPane(invoiceTable);
+            panel.add(scrollPane);
         }
-
-        // Adiciona a tabela ao painel
-
 
         // Revalida e repinta o painel
         panel.revalidate();
@@ -96,6 +101,7 @@ public class TableComponent {
             }
 
             return tableModel;
+
         } else if (items instanceof ClientDTO[]) {
             String[] columnNames = {"Selecionar", "Nome", "Email", "Telefone", "ID"};
             DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
@@ -108,8 +114,25 @@ public class TableComponent {
                         client.getId()
                 });
             }
+
             return tableModel;
+
+        } else if (items instanceof InvoiceDTO[]) {
+        String[] columnNames = {"Selecionar", "CPF/CNPJ", "Data da venda", "Total", "Status", "ID"};
+        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+
+        for (InvoiceDTO invoiceDTO : (InvoiceDTO[]) items) {
+            tableModel.addRow(new Object[]{
+                    false,
+                    invoiceDTO.getClient().getCpfCnpj(),
+                    invoiceDTO.getSaleDate(),
+                    invoiceDTO.getTotalPrice(),
+                    invoiceDTO.getStatus(),
+                    invoiceDTO.getId()
+            });
         }
+        return tableModel;
+    }
 
         // Para outros tipos de objetos (venda, etc.), adicione o mesmo padrão.
         return null;
@@ -137,6 +160,17 @@ public class TableComponent {
         table.getColumnModel().getColumn(4).setPreferredWidth(0);
     }
 
+    private void configureInvoiceTable(JTable table) {
+        // Torna a primeira coluna (de seleção) um JCheckBox
+        table.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(new JCheckBox())); // Checkbox na primeira coluna
+        table.getColumnModel().getColumn(0).setCellRenderer(new JCheckBoxRenderer()); // Renderer para exibir o JCheckBox
+
+        // Ocultar a coluna "ID"
+        table.getColumnModel().getColumn(5).setMaxWidth(0);
+        table.getColumnModel().getColumn(5).setMinWidth(0);
+        table.getColumnModel().getColumn(5).setPreferredWidth(0);
+    }
+
     static class JCheckBoxRenderer extends JCheckBox implements TableCellRenderer {
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -152,6 +186,10 @@ public class TableComponent {
 
     public JTable getClientTable() {
         return clientTable;
+    }
+
+    public JTable getInvoiceTable() {
+        return invoiceTable;
     }
 
 }

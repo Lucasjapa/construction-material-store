@@ -26,12 +26,28 @@ public class Invoice {
     private Double totalPrice;
 
     @Column(nullable = false)
-    private LocalDateTime saleDate;
+    private LocalDateTime saleDate = LocalDateTime.now();
 
-    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "id_invoice")
     private List<InvoiceItem> invoiceItems;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Status status;
+
     public Invoice() {
+    }
+
+    public Invoice(Client client, Double totalPrice, List<InvoiceItem> invoiceItems, Status status) {
+        this.client = client;
+        this.totalPrice = totalPrice;
+        this.invoiceItems = invoiceItems;
+        this.status = status;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public Client getClient() {
@@ -64,5 +80,19 @@ public class Invoice {
 
     public void setInvoiceItems(List<InvoiceItem> invoiceItems) {
         this.invoiceItems = invoiceItems;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
+    }
+
+    public enum Status {
+        FINALIZADO,
+        CANCELADO,
+        ESTORNADO
     }
 }

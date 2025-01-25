@@ -1,12 +1,10 @@
 package projectpoo.construction_material_store.domain;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
 import jakarta.persistence.*;
+import projectpoo.construction_material_store.dto.ClientDTO;
 import projectpoo.construction_material_store.dto.ProductDTO;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 
 @Entity
@@ -186,5 +184,9 @@ public class Product {
         this.salesUnit = product.getSalesUnit();
         this.expirationDate = product.getExpirationDate().orElse(null);
         this.category = product.getCategory();
+    }
+
+    public ProductDTO toDTO(){
+        return new ProductDTO(this);
     }
 }

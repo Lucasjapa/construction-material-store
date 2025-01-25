@@ -1,26 +1,28 @@
 package projectpoo.construction_material_store.dto;
 
+import projectpoo.construction_material_store.domain.InvoiceItem;
+
 public class InvoiceItemDTO {
 
     private long id;
     private ProductDTO product;
-    private String quantitySale;
-    private String unitPrice;
+    private Integer quantitySale;
+    private Double unitPrice;
 
     public InvoiceItemDTO() {
     }
 
-    public InvoiceItemDTO(ProductDTO product, String quantitySale, String unitPrice) {
+    public InvoiceItemDTO(ProductDTO product, Integer quantitySale, Double unitPrice) {
         this.product = product;
         this.quantitySale = quantitySale;
         this.unitPrice = unitPrice;
     }
 
-    public InvoiceItemDTO(InvoiceItemDTO invoiceItemDTO) {
-        this.id = invoiceItemDTO.getId();
-        this.product = invoiceItemDTO.getProduct();
-        this.quantitySale = invoiceItemDTO.getQuantitySale();
-        this.unitPrice = invoiceItemDTO.getUnitPrice();
+    public InvoiceItemDTO(InvoiceItem invoiceItem) {
+        this.id = invoiceItem.getId();
+        this.product = invoiceItem.getProduct().toDTO();
+        this.quantitySale = invoiceItem.getQuantitySale();
+        this.unitPrice = invoiceItem.getUnitPrice();
     }
 
     public long getId() {
@@ -35,19 +37,19 @@ public class InvoiceItemDTO {
         this.product = product;
     }
 
-    public String getQuantitySale() {
+    public Integer getQuantitySale() {
         return quantitySale;
     }
 
-    public void setQuantitySale(String quantitySale) {
+    public void setQuantitySale(Integer quantitySale) {
         this.quantitySale = quantitySale;
     }
 
-    public String getUnitPrice() {
+    public Double getUnitPrice() {
         return unitPrice;
     }
 
-    public void setUnitPrice(String unitPrice) {
+    public void setUnitPrice(Double unitPrice) {
         this.unitPrice = unitPrice;
     }
 }
