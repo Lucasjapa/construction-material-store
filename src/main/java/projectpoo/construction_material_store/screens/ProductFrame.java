@@ -37,7 +37,6 @@ public class ProductFrame extends JFrame {
         JPanel productPanel = new JPanel();
         productPanel.setLayout(new BoxLayout(productPanel, BoxLayout.Y_AXIS)); // Alinha verticalmente os componentes
         JScrollPane scrollPane = new JScrollPane(productPanel);
-        //add(new JScrollPane(productPanel), BorderLayout.CENTER);
 
         // Cria a instância do TableComponent
         TableComponent tableComponent = new TableComponent(productPanel);

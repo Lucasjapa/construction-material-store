@@ -13,6 +13,7 @@ import projectpoo.construction_material_store.dto.InvoiceItemDTO;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -59,21 +60,36 @@ public class SaleModal extends JDialog {
         panel.add(statusField);
 
         panel.add(new JLabel("ITENS:"));
-        // Obter as categorias únicas dos itens do InvoiceDTO
-        Set<String> categories = isEdit ? invoiceDTO.getInvoiceItens().stream()
-                .map(invoiceItem -> invoiceItem.getProduct().getName()) // Ajuste conforme o modelo do DTO
-                .collect(Collectors.toSet()) : new HashSet<>();
+//        // Obter as categorias únicas dos itens do InvoiceDTO
+//        Set<String> categories = isEdit ? invoiceDTO.getInvoiceItens().stream()
+//                .map(invoiceItem -> invoiceItem.getProduct().getName()) // Ajuste conforme o modelo do DTO
+//                .collect(Collectors.toSet()) : new HashSet<>();
+//
+//        // Converter o conjunto de categorias para um array e criar o JList
+//        JList<String> categoryList = new JList<>(categories.toArray(new String[0]));
+//        categoryList.putClientProperty("invoiceItensDTO", isEdit ? invoiceDTO.getInvoiceItens() : null);
+//        // Definir a altura e largura preferidas
+//        categoryList.setVisibleRowCount(categories.size());
+//        categoryList.setFixedCellWidth(200); // Ajuste a largura conforme necessário
+//        // Adicionar o JList ao painel
+//        panel.add(new JScrollPane(categoryList));
 
-        // Converter o conjunto de categorias para um array e criar o JList
-        JList<String> categoryList = new JList<>(categories.toArray(new String[0]));
-        categoryList.putClientProperty("invoiceItensDTO", isEdit ? invoiceDTO.getInvoiceItens() : null);
-        // Definir a altura e largura preferidas
-        categoryList.setVisibleRowCount(categories.size());
-        categoryList.setFixedCellWidth(200); // Ajuste a largura conforme necessário
+        // Painel para lista de itens
+        JPanel itemListPanel = new JPanel();
+        itemListPanel.setLayout(new BoxLayout(itemListPanel, BoxLayout.Y_AXIS));
+        itemListPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+        JScrollPane scrollPane = new JScrollPane(itemListPanel);
+        scrollPane.setPreferredSize(new Dimension(200, 150));
+        panel.add(scrollPane);
 
-        // Adicionar o JList ao painel
-        panel.add(new JScrollPane(categoryList));
+        // Painel para botões
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10)); // Alinhamento à direita
 
+        SaleItemModal saleItemModal = new SaleItemModal();
+        // Botão Adicionar Itens
+        JButton btnAddItem = new JButton("Adicionar Itens");
+        btnAddItem.addActionListener(e -> saleItemModal.saleItemActionModal());
+        buttonPanel.add(btnAddItem);
 
         // Botão de salvar
         JButton btnSave = new JButton(isEdit ? "Atualizar" : "Salvar");
@@ -82,7 +98,7 @@ public class SaleModal extends JDialog {
             String totalPriceStr = totalPriceField.getText();
             String saleDate = saleDateField.getText();
             String status = statusField.getText();
-            List<InvoiceItemDTO> itens = (List<InvoiceItemDTO>) categoryList.getClientProperty("invoiceItensDTO");
+            List<InvoiceItemDTO> itens = new ArrayList<>(); ;
 
             double totalPrice = Double.parseDouble(totalPriceStr);
 
@@ -97,12 +113,11 @@ public class SaleModal extends JDialog {
                     JOptionPane.showMessageDialog(dialog, "Venda atualizada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                 } else {
                     InvoiceDTO newInvoice = new InvoiceDTO(clientDTO, totalPrice, saleDate, itens, status);
-
                     createInvoice(newInvoice);
                     JOptionPane.showMessageDialog(dialog, "Venda criada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                 }
 
-                tableComponent.loadData(API_URL, ClientDTO[].class); // Atualizar a lista de clientes
+                tableComponent.loadData(API_URL, InvoiceDTO[].class); // Atualizar a lista de clientes
                 dialog.dispose(); // Fechar o diálogo
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(dialog, "Erro ao salvar venda.", "Erro", JOptionPane.ERROR_MESSAGE);
@@ -111,12 +126,18 @@ public class SaleModal extends JDialog {
                 btnSave.setEnabled(true); // Reativa o botão, mesmo em caso de erro
             }
         });
+        buttonPanel.add(btnSave);
 
+//        panel.add(new JLabel()); // Espaço vazio para alinhar o botão
+//        panel.add(btnSave);
+//
+//        dialog.add(panel);
+//        dialog.setVisible(true);
 
-        panel.add(new JLabel()); // Espaço vazio para alinhar o botão
-        panel.add(btnSave);
+        // Adiciona o painel de botões ao diálogo
+        dialog.add(panel, BorderLayout.CENTER); // Campos no centro
+        dialog.add(buttonPanel, BorderLayout.SOUTH); // Botões no rodapé
 
-        dialog.add(panel);
         dialog.setVisible(true);
     }
 
