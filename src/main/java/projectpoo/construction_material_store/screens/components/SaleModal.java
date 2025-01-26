@@ -4,20 +4,16 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import projectpoo.construction_material_store.domain.Client;
 import projectpoo.construction_material_store.domain.Invoice;
-import projectpoo.construction_material_store.domain.InvoiceItem;
 import projectpoo.construction_material_store.dto.ClientDTO;
 import projectpoo.construction_material_store.dto.InvoiceDTO;
 import projectpoo.construction_material_store.dto.InvoiceItemDTO;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 public class SaleModal extends JDialog {
 
@@ -26,69 +22,109 @@ public class SaleModal extends JDialog {
     public SaleModal() {
     }
 
-    //TODO:Lucas Cavalcante - Fazer a tela de criar venda.
     public void saleActionModal(TableComponent tableComponent, InvoiceDTO invoiceDTO) {
         // Determina se é criação ou edição
         boolean isEdit = invoiceDTO != null;
         String dialogTitle = isEdit ? "Editar venda" : "Criar venda";
 
         JDialog dialog = new JDialog(this, dialogTitle, true);
-        dialog.setSize(650, 400);
+        dialog.setSize(650, 600);
         dialog.setLocationRelativeTo(this);
 
         // Painel para os campos
-        JPanel panel = new JPanel(new GridLayout(11, 2, 5, 5));
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS)); // Usando BoxLayout para empilhar os componentes verticalmente
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Campos de entrada
-        panel.add(new JLabel("CPF/CNPJ:"));
-        JTextField clientField = new JTextField(isEdit ? invoiceDTO.getClient().getCpfCnpj() : "");
-        // Associa o DTO ao JTextField
-        clientField.putClientProperty("clientDTO", isEdit ? invoiceDTO.getClient() : null);
-        panel.add(clientField);
+        // Painel para o campo "CPF/CNPJ"
+        JPanel clientPanel = new JPanel();
+        clientPanel.setLayout(new BoxLayout(clientPanel, BoxLayout.Y_AXIS)); // Usando BoxLayout para empilhar a label e o campo
+        clientPanel.add(new JLabel("CPF/CNPJ:"));
+        JTextField clientField = new JTextField(isEdit ? invoiceDTO.getClient().getCpfCnpj() : "", 15);
+        clientField.setMaximumSize(new Dimension(Integer.MAX_VALUE, clientField.getPreferredSize().height));
+        clientPanel.add(clientField);
+        panel.add(clientPanel); // Adiciona o painel ao painel principal
 
-        panel.add(new JLabel("TOTAL"));
-        JTextField totalPriceField = new JTextField(String.valueOf(isEdit ? invoiceDTO.getTotalPrice() : ""));
-        panel.add(totalPriceField);
+        // Painel para o campo "TOTAL"
+        JPanel totalPanel = new JPanel();
+        totalPanel.setLayout(new BoxLayout(totalPanel, BoxLayout.Y_AXIS));
+        totalPanel.add(new JLabel("TOTAL:"));
+        JTextField totalPriceField = new JTextField(String.valueOf(0.0), 15);
+        totalPriceField.setMaximumSize(new Dimension(Integer.MAX_VALUE, totalPriceField.getPreferredSize().height));
+        totalPanel.add(totalPriceField);
+        panel.add(totalPanel); // Adiciona o painel ao painel principal
 
-        panel.add(new JLabel("DATA DA VENDA"));
-        JTextField saleDateField = new JTextField(isEdit ? invoiceDTO.getSaleDate() : "");
-        panel.add(saleDateField);
+        // Painel para o campo "DATA DA VENDA"
+        JPanel saleDatePanel = new JPanel();
+        saleDatePanel.setLayout(new BoxLayout(saleDatePanel, BoxLayout.Y_AXIS));
+        saleDatePanel.add(new JLabel("DATA DA VENDA:"));
+        JTextField saleDateField = new JTextField(isEdit ? invoiceDTO.getSaleDate() : "", 15);
+        saleDateField.setMaximumSize(new Dimension(Integer.MAX_VALUE, saleDateField.getPreferredSize().height));
+        saleDatePanel.add(saleDateField);
+        panel.add(saleDatePanel); // Adiciona o painel ao painel principal
 
-        panel.add(new JLabel("STATUS:"));
-        JTextField statusField = new JTextField(isEdit ? invoiceDTO.getStatus() : "");
-        panel.add(statusField);
+        // Painel para o campo "STATUS"
+        JPanel statusPanel = new JPanel();
+        statusPanel.setLayout(new BoxLayout(statusPanel, BoxLayout.Y_AXIS));
+        statusPanel.add(new JLabel("STATUS:"));
+        JTextField statusField = new JTextField(isEdit ? invoiceDTO.getStatus() : "", 15);
+        statusField.setMaximumSize(new Dimension(Integer.MAX_VALUE, statusField.getPreferredSize().height));
+        statusPanel.add(statusField);
+        panel.add(statusPanel); // Adiciona o painel ao painel principal
+
+        // Painel principal
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
+        // Definindo o modelo de dados para a tabela
+        String[] colunas = {"Produto", "Quantidade", "Preço", "Total"};
+        DefaultTableModel tableModel = new DefaultTableModel(colunas, 0);  // Inicializa com zero itens
+        JTable table = new JTable(tableModel);
+        table.setFillsViewportHeight(true);
+
+        // Adiciona a tabela a um JScrollPane
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setPreferredSize(new Dimension(600, 200)); // Ajuste a altura da tabela
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);  // Adiciona a barra de rolagem
 
         panel.add(new JLabel("ITENS:"));
-//        // Obter as categorias únicas dos itens do InvoiceDTO
-//        Set<String> categories = isEdit ? invoiceDTO.getInvoiceItens().stream()
-//                .map(invoiceItem -> invoiceItem.getProduct().getName()) // Ajuste conforme o modelo do DTO
-//                .collect(Collectors.toSet()) : new HashSet<>();
-//
-//        // Converter o conjunto de categorias para um array e criar o JList
-//        JList<String> categoryList = new JList<>(categories.toArray(new String[0]));
-//        categoryList.putClientProperty("invoiceItensDTO", isEdit ? invoiceDTO.getInvoiceItens() : null);
-//        // Definir a altura e largura preferidas
-//        categoryList.setVisibleRowCount(categories.size());
-//        categoryList.setFixedCellWidth(200); // Ajuste a largura conforme necessário
-//        // Adicionar o JList ao painel
-//        panel.add(new JScrollPane(categoryList));
-
-        // Painel para lista de itens
-        JPanel itemListPanel = new JPanel();
-        itemListPanel.setLayout(new BoxLayout(itemListPanel, BoxLayout.Y_AXIS));
-        itemListPanel.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
-        JScrollPane scrollPane = new JScrollPane(itemListPanel);
-        scrollPane.setPreferredSize(new Dimension(200, 150));
         panel.add(scrollPane);
 
-        // Painel para botões
+        // Lista para armazenar os itens selecionados
+        List<InvoiceItemDTO> itens = new ArrayList<>();
+
+        // Painel para os botões
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10)); // Alinhamento à direita
 
         SaleItemModal saleItemModal = new SaleItemModal();
-        // Botão Adicionar Itens
+
+        // Botão para adicionar itens
         JButton btnAddItem = new JButton("Adicionar Itens");
-        btnAddItem.addActionListener(e -> saleItemModal.saleItemActionModal());
+        btnAddItem.addActionListener(e -> {
+            saleItemModal.saleItemActionModal();
+            InvoiceItemDTO selectedItem = saleItemModal.getSelectedItem();
+            double total = Double.parseDouble(totalPriceField.getText().replace(",", "."));
+
+            if (selectedItem != null) {
+                // Adiciona o item à lista
+                itens.add(selectedItem);
+
+                // Calcula o total
+                double itemTotal = selectedItem.getProduct().getPrice() * selectedItem.getQuantitySale();
+                total += itemTotal;
+
+                // Adiciona o item à tabela
+                Object[] row = new Object[]{
+                        selectedItem.getProduct().getName(),
+                        selectedItem.getQuantitySale(),
+                        selectedItem.getProduct().getPrice(),
+                        String.format("R$ %.2f", itemTotal)
+                };
+                tableModel.addRow(row);  // Atualiza a tabela com o novo item
+
+                // Atualiza o campo TOTAL com o valor acumulado
+                totalPriceField.setText(String.format("%.2f", total));
+            }
+        });
         buttonPanel.add(btnAddItem);
 
         // Botão de salvar
@@ -98,7 +134,6 @@ public class SaleModal extends JDialog {
             String totalPriceStr = totalPriceField.getText();
             String saleDate = saleDateField.getText();
             String status = statusField.getText();
-            List<InvoiceItemDTO> itens = new ArrayList<>(); ;
 
             double totalPrice = Double.parseDouble(totalPriceStr);
 
@@ -128,15 +163,12 @@ public class SaleModal extends JDialog {
         });
         buttonPanel.add(btnSave);
 
-//        panel.add(new JLabel()); // Espaço vazio para alinhar o botão
-//        panel.add(btnSave);
-//
-//        dialog.add(panel);
-//        dialog.setVisible(true);
-
         // Adiciona o painel de botões ao diálogo
         dialog.add(panel, BorderLayout.CENTER); // Campos no centro
         dialog.add(buttonPanel, BorderLayout.SOUTH); // Botões no rodapé
+
+        // Define o tamanho máximo do modal
+        dialog.setMaximumSize(new Dimension(650, 600));  // Limita a altura máxima
 
         dialog.setVisible(true);
     }

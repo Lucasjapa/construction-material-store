@@ -1,5 +1,9 @@
 package projectpoo.construction_material_store.screens.components;
 
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+import projectpoo.construction_material_store.dto.InvoiceItemDTO;
 import projectpoo.construction_material_store.dto.ProductDTO;
 
 import javax.swing.*;
@@ -8,6 +12,7 @@ import java.awt.*;
 public class SaleItemModal extends JDialog {
 
     private static final String API_URL = "http://localhost:8080/products";
+    private InvoiceItemDTO selectedItem;
 
     public SaleItemModal() {
     }
@@ -62,19 +67,48 @@ public class SaleItemModal extends JDialog {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT)); // Alinha o botão à direita
         JButton btnSave = new JButton("Adicionar");
         btnSave.addActionListener(e -> {
-            String cpfCnpj = quantitySaleField.getText();
+            btnSave.setEnabled(false);
 
-            btnSave.setEnabled(false); // Desabilita o botão para evitar múltiplos cliques
-            try {
-                tableComponent.loadData(API_URL, ProductDTO[].class); // Atualizar a lista de produtos
-                dialog.dispose(); // Fecha o diálogo
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(dialog, "Erro ao salvar item.", "Erro", JOptionPane.ERROR_MESSAGE);
-                ex.printStackTrace();
-            } finally {
-                btnSave.setEnabled(true); // Reativa o botão, mesmo em caso de erro
+            int selectedRow = tableComponent.getProductTable().getSelectedRow();
+
+            if (selectedRow != -1) { // Verifica se uma linha foi selecionada
+                // Recupera o ID do produto selecionado (coluna "ID" - índice 7)
+                Long productId = (Long) tableComponent.getProductTable().getValueAt(selectedRow, 7);
+
+                int quantity;
+                try {
+                    quantity = Integer.parseInt(quantitySaleField.getText()); // Pega a quantidade digitada
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(dialog, "Quantidade inválida.", "Erro", JOptionPane.ERROR_MESSAGE);
+                    btnSave.setEnabled(true); // Reativa o botão em caso de erro
+                    return;
+                }
+
+                // Aqui você pode fazer a consulta ao banco de dados usando o ID
+                ProductDTO selectedProduct = addSelectedProduct(productId);
+
+                if (selectedProduct != null) {
+                    // Aqui você pode usar os dados: selectedProduct (produto) e quantity (quantidade)
+                    System.out.println("Produto selecionado: " + selectedProduct);
+                    System.out.println("Quantidade: " + quantity);
+
+                    selectedItem = new InvoiceItemDTO(selectedProduct, quantity, selectedProduct.getPrice());
+
+                    // Fechar o diálogo e passar os dados
+                    dialog.dispose();
+
+                } else {
+                    JOptionPane.showMessageDialog(dialog, "Produto não encontrado.", "Erro", JOptionPane.ERROR_MESSAGE);
+                }
+
+            } else {
+                JOptionPane.showMessageDialog(dialog, "Por favor, selecione um produto.", "Erro", JOptionPane.ERROR_MESSAGE);
+                btnSave.setEnabled(true); // Reativa o botão se não houver seleção
             }
+
+            btnSave.setEnabled(true);
         });
+
         buttonPanel.add(btnSave); // Adiciona o botão ao painel
 
         // Adiciona o painel de botão ao painel principal
@@ -91,5 +125,23 @@ public class SaleItemModal extends JDialog {
 
         // Torna o diálogo visível
         dialog.setVisible(true);
+    }
+
+    private ProductDTO addSelectedProduct(Long productId) {
+        // Criar uma instância de RestTemplate
+        RestTemplate restTemplate = new RestTemplate();
+
+        // URL da API para buscar o produto pelo ID
+        String getUrl = API_URL + "/" + productId;
+
+        // Fazendo a requisição GET para buscar o produto
+        ResponseEntity<ProductDTO> response = restTemplate.exchange(getUrl, HttpMethod.GET, null, ProductDTO.class);
+
+        // Retorna o produto encontrado ou null caso não tenha encontrado
+        return response.getBody();
+    }
+
+    public InvoiceItemDTO getSelectedItem() {
+        return selectedItem;
     }
 }
