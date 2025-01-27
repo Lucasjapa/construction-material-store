@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter;
 
 public class ProductDTO {
 
-    private long id;
+    private Long id;
     private String name;
     private String codProduct;
     private double totalStock;
@@ -50,7 +50,7 @@ public class ProductDTO {
         this.category = product.getCategory() != null ? product.getCategory().getDescricao() : null;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 

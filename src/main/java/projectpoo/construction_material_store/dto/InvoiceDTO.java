@@ -20,10 +20,9 @@ public class InvoiceDTO {
     public InvoiceDTO() {
     }
 
-    public InvoiceDTO( ClientDTO client, Double totalPrice, String saleDate, List<InvoiceItemDTO> invoiceItens, String status) {
+    public InvoiceDTO( ClientDTO client, Double totalPrice, List<InvoiceItemDTO> invoiceItens, String status) {
         this.client = client;
         this.totalPrice = totalPrice;
-        this.saleDate = saleDate;
         this.invoiceItens = invoiceItens;
         this.status = status;
     }

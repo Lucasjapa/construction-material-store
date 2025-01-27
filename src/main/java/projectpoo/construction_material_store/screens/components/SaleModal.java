@@ -18,6 +18,7 @@ import java.util.List;
 public class SaleModal extends JDialog {
 
     private static final String API_URL = "http://localhost:8080/invoices"; // URL da sua API
+    private ClientDTO selectedClient;
 
     public SaleModal() {
     }
@@ -42,6 +43,7 @@ public class SaleModal extends JDialog {
         clientPanel.add(new JLabel("CPF/CNPJ:"));
         JTextField clientField = new JTextField(isEdit ? invoiceDTO.getClient().getCpfCnpj() : "", 15);
         clientField.setMaximumSize(new Dimension(Integer.MAX_VALUE, clientField.getPreferredSize().height));
+        clientField.setEditable(false);
         clientPanel.add(clientField);
         panel.add(clientPanel); // Adiciona o painel ao painel principal
 
@@ -51,17 +53,9 @@ public class SaleModal extends JDialog {
         totalPanel.add(new JLabel("TOTAL:"));
         JTextField totalPriceField = new JTextField(String.valueOf(0.0), 15);
         totalPriceField.setMaximumSize(new Dimension(Integer.MAX_VALUE, totalPriceField.getPreferredSize().height));
+        totalPriceField.setEditable(false);
         totalPanel.add(totalPriceField);
         panel.add(totalPanel); // Adiciona o painel ao painel principal
-
-        // Painel para o campo "DATA DA VENDA"
-        JPanel saleDatePanel = new JPanel();
-        saleDatePanel.setLayout(new BoxLayout(saleDatePanel, BoxLayout.Y_AXIS));
-        saleDatePanel.add(new JLabel("DATA DA VENDA:"));
-        JTextField saleDateField = new JTextField(isEdit ? invoiceDTO.getSaleDate() : "", 15);
-        saleDateField.setMaximumSize(new Dimension(Integer.MAX_VALUE, saleDateField.getPreferredSize().height));
-        saleDatePanel.add(saleDateField);
-        panel.add(saleDatePanel); // Adiciona o painel ao painel principal
 
         // Painel para o campo "STATUS"
         JPanel statusPanel = new JPanel();
@@ -96,6 +90,21 @@ public class SaleModal extends JDialog {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10)); // Alinhamento à direita
 
         SaleItemModal saleItemModal = new SaleItemModal();
+        ClientItemModal clientItemModal = new ClientItemModal();
+
+        // Botão para adicionar cliente
+        JButton btnAddClient = new JButton("Adicionar Cliente");
+        btnAddClient.addActionListener(e -> {
+            clientItemModal.clientItemActionModal();
+            ClientDTO selectClient = clientItemModal.getSelectedItem();
+
+            if (selectClient != null) {
+                clientField.putClientProperty("clientDTO", selectClient);
+                // Atualiza o campo TOTAL com o valor acumulado
+                clientField.setText(selectClient.getCpfCnpj());
+            }
+        });
+        buttonPanel.add(btnAddClient);
 
         // Botão para adicionar itens
         JButton btnAddItem = new JButton("Adicionar Itens");
@@ -104,13 +113,30 @@ public class SaleModal extends JDialog {
             InvoiceItemDTO selectedItem = saleItemModal.getSelectedItem();
             double total = Double.parseDouble(totalPriceField.getText().replace(",", "."));
 
-            if (selectedItem != null) {
-                // Adiciona o item à lista
+            boolean exist = itens.stream()
+                    .filter(item -> item.getProduct().getId().equals(selectedItem.getProduct().getId()))
+                    .findFirst()
+                    .map(existingItem -> {
+                        int index = itens.indexOf(existingItem);
+                        itens.set(index, selectedItem);
+                        // Atualiza a linha correspondente na tabela
+                        for (int i = 0; i < tableModel.getRowCount(); i++) {
+                            if (tableModel.getValueAt(i, 0).equals(existingItem.getProduct().getName())) {
+                                tableModel.setValueAt(selectedItem.getQuantitySale(), i, 1);
+                                tableModel.setValueAt(selectedItem.getProduct().getPrice(), i, 2);
+                                double itemTotal = selectedItem.getProduct().getPrice() * selectedItem.getQuantitySale();
+                                tableModel.setValueAt(String.format("R$ %.2f", itemTotal), i, 3);
+                                break;
+                            }
+                        }
+                        return true;
+                    }).orElse(false);
+
+            if (!exist) {
                 itens.add(selectedItem);
 
                 // Calcula o total
                 double itemTotal = selectedItem.getProduct().getPrice() * selectedItem.getQuantitySale();
-                total += itemTotal;
 
                 // Adiciona o item à tabela
                 Object[] row = new Object[]{
@@ -120,22 +146,28 @@ public class SaleModal extends JDialog {
                         String.format("R$ %.2f", itemTotal)
                 };
                 tableModel.addRow(row);  // Atualiza a tabela com o novo item
-
-                // Atualiza o campo TOTAL com o valor acumulado
-                totalPriceField.setText(String.format("%.2f", total));
             }
+
+            // Atualiza o campo TOTAL com o valor acumulado
+            total = itens.stream()
+                    .mapToDouble(item -> item.getProduct().getPrice() * item.getQuantitySale())
+                    .sum();
+
+            // Atualiza o campo TOTAL com o valor acumulado
+            totalPriceField.setText(String.format("%.2f", total));
         });
         buttonPanel.add(btnAddItem);
 
         // Botão de salvar
         JButton btnSave = new JButton(isEdit ? "Atualizar" : "Salvar");
-        btnSave.addActionListener(e -> {
+        btnSave.addActionListener(e ->
+
+        {
             ClientDTO clientDTO = (ClientDTO) clientField.getClientProperty("clientDTO");
             String totalPriceStr = totalPriceField.getText();
-            String saleDate = saleDateField.getText();
             String status = statusField.getText();
 
-            double totalPrice = Double.parseDouble(totalPriceStr);
+            double totalPrice = Double.parseDouble(totalPriceStr.replace(",", "."));
 
             // Criar ou atualizar o cliente
             btnSave.setEnabled(false); // Desabilita o botão para evitar múltiplos cliques
@@ -147,7 +179,7 @@ public class SaleModal extends JDialog {
 //                    updateClient(clientDto);
                     JOptionPane.showMessageDialog(dialog, "Venda atualizada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    InvoiceDTO newInvoice = new InvoiceDTO(clientDTO, totalPrice, saleDate, itens, status);
+                    InvoiceDTO newInvoice = new InvoiceDTO(clientDTO, totalPrice, itens, status);
                     createInvoice(newInvoice);
                     JOptionPane.showMessageDialog(dialog, "Venda criada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                 }
@@ -168,7 +200,9 @@ public class SaleModal extends JDialog {
         dialog.add(buttonPanel, BorderLayout.SOUTH); // Botões no rodapé
 
         // Define o tamanho máximo do modal
-        dialog.setMaximumSize(new Dimension(650, 600));  // Limita a altura máxima
+        dialog.setMaximumSize(new
+
+                Dimension(650, 600));  // Limita a altura máxima
 
         dialog.setVisible(true);
     }

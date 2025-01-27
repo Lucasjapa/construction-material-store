@@ -88,15 +88,13 @@ public class SaleItemModal extends JDialog {
                 ProductDTO selectedProduct = addSelectedProduct(productId);
 
                 if (selectedProduct != null) {
-                    // Aqui você pode usar os dados: selectedProduct (produto) e quantity (quantidade)
-                    System.out.println("Produto selecionado: " + selectedProduct);
-                    System.out.println("Quantidade: " + quantity);
-
-                    selectedItem = new InvoiceItemDTO(selectedProduct, quantity, selectedProduct.getPrice());
-
-                    // Fechar o diálogo e passar os dados
-                    dialog.dispose();
-
+                    if (quantity <= selectedProduct.getTotalStock()) {
+                        selectedItem = new InvoiceItemDTO(selectedProduct, quantity, selectedProduct.getPrice());
+                        // Fechar o diálogo e passar os dados
+                        dialog.dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(dialog, "Quantidade indisponível em estoque.", "Erro", JOptionPane.ERROR_MESSAGE);
+                    }
                 } else {
                     JOptionPane.showMessageDialog(dialog, "Produto não encontrado.", "Erro", JOptionPane.ERROR_MESSAGE);
                 }
