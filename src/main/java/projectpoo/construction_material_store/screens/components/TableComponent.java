@@ -11,6 +11,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.util.ArrayList;
 
 public class TableComponent {
 
@@ -103,13 +104,14 @@ public class TableComponent {
             return tableModel;
 
         } else if (items instanceof ClientDTO[]) {
-            String[] columnNames = {"Selecionar", "Nome", "Email", "Telefone", "ID"};
+            String[] columnNames = {"Selecionar", "Nome", "CPF/CNPJ", "Email", "Telefone", "ID"};
             DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
 
             for (ClientDTO client : (ClientDTO[]) items) {
                 tableModel.addRow(new Object[]{
                         false,
                         client.getName(),
+                        client.getCpfCnpj(),
                         client.getEmail(),
                         client.getId()
                 });
@@ -155,9 +157,9 @@ public class TableComponent {
         table.getColumnModel().getColumn(0).setCellRenderer(new JCheckBoxRenderer()); // Renderer para exibir o JCheckBox
 
         // Ocultar a coluna "ID"
-        table.getColumnModel().getColumn(4).setMaxWidth(0);
-        table.getColumnModel().getColumn(4).setMinWidth(0);
-        table.getColumnModel().getColumn(4).setPreferredWidth(0);
+        table.getColumnModel().getColumn(5).setMaxWidth(0);
+        table.getColumnModel().getColumn(5).setMinWidth(0);
+        table.getColumnModel().getColumn(5).setPreferredWidth(0);
     }
 
     private void configureInvoiceTable(JTable table) {
@@ -178,6 +180,20 @@ public class TableComponent {
             setEnabled(table.isEnabled()); // Define se o checkbox está habilitado
             return this; // Retorna o próprio JCheckBox
         }
+    }
+
+    public int getSelectedRows(JTable table) {
+        int selectedRows = 0;
+
+        // Itera sobre todas as linhas da tabela
+        for (int i = 0; i < table.getRowCount(); i++) {
+            // Obtém o valor do checkbox na primeira coluna
+            Boolean isSelected = (Boolean) table.getValueAt(i, 0);
+            if (isSelected != null && isSelected) {
+                selectedRows++; // Adiciona a linha à lista se o checkbox estiver marcado
+            }
+        }
+        return selectedRows;
     }
 
     public JTable getProductTable() {

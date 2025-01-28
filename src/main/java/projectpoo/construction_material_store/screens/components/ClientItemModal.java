@@ -4,8 +4,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import projectpoo.construction_material_store.dto.ClientDTO;
-import projectpoo.construction_material_store.dto.InvoiceItemDTO;
-import projectpoo.construction_material_store.dto.ProductDTO;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,7 +18,7 @@ public class ClientItemModal extends JDialog {
 
     public void clientItemActionModal() {
         // Determina se é criação ou edição
-        String dialogTitle = "Selecione o cliente";
+        String dialogTitle = "Selecionar cliente";
 
         JDialog dialog = new JDialog(this, dialogTitle, true);
         dialog.setLayout(new BorderLayout()); // Configura o layout do diálogo
@@ -60,31 +58,29 @@ public class ClientItemModal extends JDialog {
         btnSave.addActionListener(e -> {
             btnSave.setEnabled(false);
 
-            int selectedRow = tableComponent.getClientTable().getSelectedRow();
+            int selectedRows = tableComponent.getSelectedRows(tableComponent.getClientTable());
 
-            if (selectedRow != -1) { // Verifica se uma linha foi selecionada
-                // Recupera o ID do produto selecionado (coluna "ID" - índice 7)
-                Long productId = (Long) tableComponent.getClientTable().getValueAt(selectedRow, 3);
-
-                // Aqui você pode fazer a consulta ao banco de dados usando o ID
-                ClientDTO selecClient = addSelectedClient(productId);
-
-                if (selecClient != null) {
-                    // Aqui você pode usar os dados: selectedProduct (cliente)
-                    System.out.println("Cliente selecionado: " + selecClient);
-
-                    selectedClient = selecClient;
-
-                    // Fechar o diálogo e passar os dados
-                    dialog.dispose();
-
-                } else {
-                    JOptionPane.showMessageDialog(dialog, "Cliente não encontrado.", "Erro", JOptionPane.ERROR_MESSAGE);
-                }
-
-            } else {
+            if (selectedRows == 0) {
                 JOptionPane.showMessageDialog(dialog, "Por favor, selecione um cliente.", "Erro", JOptionPane.ERROR_MESSAGE);
-                btnSave.setEnabled(true); // Reativa o botão se não houver seleção
+            } else {
+                // Verifica se mais de uma linha foi selecionada (caso o código permita seleção múltipla)
+                if (selectedRows > 1) {
+                    JOptionPane.showMessageDialog(dialog, "Por favor, selecione apenas 1 cliente.", "Erro", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    // Obtém o produto do cliente selecionado
+                    Long productId = (Long) tableComponent.getClientTable().getValueAt(tableComponent.getClientTable().getSelectedRow(), 4);
+
+                    // Adiciona o cliente selecionado
+                    ClientDTO selecClient = addSelectedClient(productId);
+
+                    if (selecClient != null) {
+                        System.out.println("Cliente selecionado: " + selecClient);
+                        selectedClient = selecClient;
+                        dialog.dispose(); // Fecha o diálogo
+                    } else {
+                        JOptionPane.showMessageDialog(dialog, "Cliente não encontrado.", "Erro", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
             }
 
             btnSave.setEnabled(true);
