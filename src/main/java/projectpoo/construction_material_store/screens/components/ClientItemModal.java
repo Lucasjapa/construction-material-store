@@ -37,7 +37,7 @@ public class ClientItemModal extends JDialog {
         JPanel tablePanel = new JPanel(new BorderLayout());
 
         // Instancia o componente de tabela
-        TableComponent tableComponent = new TableComponent(new JPanel());
+        TableComponent tableComponent = new TableComponent(tablePanel);
 
         try {
             // Carrega os dados antes de criar a tabela
@@ -47,13 +47,20 @@ public class ClientItemModal extends JDialog {
             JOptionPane.showMessageDialog(dialog, "Erro ao carregar os clientes!", "Erro", JOptionPane.ERROR_MESSAGE);
         }
 
-        // Cria o JScrollPane para a tabela e adiciona ao painel
-        JScrollPane tableScrollPane = new JScrollPane(tableComponent.getClientTable());
-        tablePanel.add(tableScrollPane, BorderLayout.CENTER); // Tabela ocupa o centro
-        panel.add(tablePanel); // Adiciona o painel da tabela ao painel principal
+        SearchBar searchBar = new SearchBar();
 
-        // Painel para o botão "Adicionar"
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT)); // Alinha o botão à direita
+        // Adiciona o painel de busca acima da tabela
+        JPanel searchPanel = searchBar.getSearchPanel(tableComponent,API_URL, API_URL + "/searchclients/", ClientDTO[].class);
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.add(searchPanel, BorderLayout.NORTH); // Barra de busca acima
+        add(centerPanel, BorderLayout.CENTER);
+        panel.add(centerPanel);
+
+        JScrollPane tableScrollPane = new JScrollPane(tableComponent.getClientTable());
+        tablePanel.add(tableScrollPane, BorderLayout.CENTER);
+        panel.add(tablePanel);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnSave = new JButton("Selecionar cliente");
         btnSave.addActionListener(e -> {
             btnSave.setEnabled(false);
