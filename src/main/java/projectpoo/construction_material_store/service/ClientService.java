@@ -21,8 +21,8 @@ public class ClientService {
         return clientRepository.findAll();
     }
 
-    public List<Client> getClientsByName(String name) {
-        return clientRepository.findByNameContainingIgnoreCase(name);
+    public List<Client> getClientsByCpfCnpj(String cpfCnpj) {
+        return clientRepository.findByCpfCnpjContainingIgnoreCase(cpfCnpj);
     }
 
     public Client getClientById(long id) {

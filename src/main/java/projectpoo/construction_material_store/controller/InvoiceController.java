@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import projectpoo.construction_material_store.domain.Client;
 import projectpoo.construction_material_store.domain.Invoice;
+import projectpoo.construction_material_store.dto.ClientDTO;
 import projectpoo.construction_material_store.dto.InvoiceDTO;
 import projectpoo.construction_material_store.dto.ProductDTO;
 import projectpoo.construction_material_store.service.ClientService;
@@ -36,11 +37,12 @@ public class InvoiceController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/{cpfCnpj}")
+    @GetMapping("/search-invoices/{codInvoice}")
     // Mapeia uma requisição GET para buscar os invoice que contenha aquele nome
-    public List<Invoice> getInvoiceByCpfOrCnpj(@PathVariable String cpfCnpj) {
-        // Retorna o produto correspondente ao ID fornecido, ou null caso não encontrado
-        return invoiceService.getInvoicesByCpfOrCpnj(cpfCnpj);
+    public List<InvoiceDTO> getInvoiceByCodInvoice(@PathVariable String codInvoice) {
+        return invoiceService.getInvoicesByCodInvoice(codInvoice).stream()
+                .map(InvoiceDTO::new)
+                .collect(Collectors.toList());
     }
 
     @DeleteMapping("/{id}")

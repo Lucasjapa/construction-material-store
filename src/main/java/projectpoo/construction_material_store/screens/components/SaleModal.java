@@ -104,7 +104,7 @@ public class SaleModal extends JDialog {
         btnAddItem.addActionListener(e -> {
             saleItemModal.saleItemActionModal();
             InvoiceItemDTO selectedItem = saleItemModal.getSelectedItem();
-            double total = Double.parseDouble(totalPriceField.getText().replace(",", "."));
+            double total;
 
             boolean exist = itens.stream()
                     .filter(item -> item.getProduct().getId().equals(selectedItem.getProduct().getId()))

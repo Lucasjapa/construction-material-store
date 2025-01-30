@@ -42,8 +42,8 @@ public class InvoiceService {
         return invoiceRepository.findAll();
     }
 
-    public List<Invoice> getInvoicesByCpfOrCpnj(String cpfCnpj) {
-        return invoiceRepository.findByClient_CpfCnpj(cpfCnpj);
+    public List<Invoice> getInvoicesByCodInvoice(String codInvoice) {
+        return invoiceRepository.findByCodInvoiceContainingIgnoreCase(codInvoice);
     }
 
     public void deleteInvoice(Long id) {

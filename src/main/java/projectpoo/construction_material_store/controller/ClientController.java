@@ -34,10 +34,10 @@ public class ClientController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/searchclients/{name}")
+    @GetMapping("/search-clients/{cpfCnpj}")
     // Mapeia uma requisição GET para buscar os clientes que contenha aquele nome
-    public List<ClientDTO> getClientByName(@PathVariable String name) {
-        return clientService.getClientsByName(name).stream()
+    public List<ClientDTO> getClientByName(@PathVariable String cpfCnpj) {
+        return clientService.getClientsByCpfCnpj(cpfCnpj).stream()
                 .map(ClientDTO::new)
                 .collect(Collectors.toList());
     }

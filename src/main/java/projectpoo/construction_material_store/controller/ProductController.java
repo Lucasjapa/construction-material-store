@@ -34,7 +34,7 @@ public class ProductController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/searchproducts/{name}")
+    @GetMapping("/search-products/{name}")
     // Mapeia uma requisição GET para buscar todos os produtos pelo nome informado
     public List<ProductDTO> getProductsByName(@PathVariable String name) {
         return productService.getProductsByName(name).stream()

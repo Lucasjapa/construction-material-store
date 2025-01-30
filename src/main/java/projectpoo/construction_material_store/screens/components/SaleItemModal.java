@@ -38,7 +38,7 @@ public class SaleItemModal extends JDialog {
         JPanel tablePanel = new JPanel(new BorderLayout());
 
         // Instancia o componente de tabela
-        TableComponent tableComponent = new TableComponent(new JPanel());
+        TableComponent tableComponent = new TableComponent(tablePanel);
 
         try {
             // Carrega os dados antes de criar a tabela
@@ -47,6 +47,15 @@ public class SaleItemModal extends JDialog {
             e.printStackTrace();
             JOptionPane.showMessageDialog(dialog, "Erro ao carregar produtos!", "Erro", JOptionPane.ERROR_MESSAGE);
         }
+
+        SearchBar searchBar = new SearchBar();
+
+        // Adiciona o painel de busca acima da tabela
+        JPanel searchPanel = searchBar.getSearchPanel(tableComponent,API_URL, API_URL + "/search-products/", ProductDTO[].class);
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.add(searchPanel, BorderLayout.NORTH); // Barra de busca acima
+        add(centerPanel, BorderLayout.CENTER);
+        panel.add(centerPanel);
 
         // Cria o JScrollPane para a tabela e adiciona ao painel
         JScrollPane tableScrollPane = new JScrollPane(tableComponent.getProductTable());
@@ -65,43 +74,48 @@ public class SaleItemModal extends JDialog {
 
         // Painel para o botão "Adicionar"
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT)); // Alinha o botão à direita
-        JButton btnSave = new JButton("Adicionar");
+        JButton btnSave = new JButton("Adicionar produto");
         btnSave.addActionListener(e -> {
             btnSave.setEnabled(false);
 
             int selectedRow = tableComponent.getProductTable().getSelectedRow();
 
-            if (selectedRow != -1) { // Verifica se uma linha foi selecionada
-                // Recupera o ID do produto selecionado (coluna "ID" - índice 7)
-                Long productId = (Long) tableComponent.getProductTable().getValueAt(selectedRow, 7);
+            int selectedRows = tableComponent.getSelectedRows(tableComponent.getProductTable());
 
-                int quantity;
-                try {
-                    quantity = Integer.parseInt(quantitySaleField.getText()); // Pega a quantidade digitada
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(dialog, "Quantidade inválida.", "Erro", JOptionPane.ERROR_MESSAGE);
-                    btnSave.setEnabled(true); // Reativa o botão em caso de erro
-                    return;
-                }
-
-                // Aqui você pode fazer a consulta ao banco de dados usando o ID
-                ProductDTO selectedProduct = addSelectedProduct(productId);
-
-                if (selectedProduct != null) {
-                    if (quantity <= selectedProduct.getTotalStock()) {
-                        selectedItem = new InvoiceItemDTO(selectedProduct, quantity, selectedProduct.getPrice());
-                        // Fechar o diálogo e passar os dados
-                        dialog.dispose();
-                    } else {
-                        JOptionPane.showMessageDialog(dialog, "Quantidade indisponível em estoque.", "Erro", JOptionPane.ERROR_MESSAGE);
-                    }
-                } else {
-                    JOptionPane.showMessageDialog(dialog, "Produto não encontrado.", "Erro", JOptionPane.ERROR_MESSAGE);
-                }
-
-            } else {
+            if (selectedRows == 0) {
                 JOptionPane.showMessageDialog(dialog, "Por favor, selecione um produto.", "Erro", JOptionPane.ERROR_MESSAGE);
-                btnSave.setEnabled(true); // Reativa o botão se não houver seleção
+            } else {
+                // Verifica se mais de uma linha foi selecionada (caso o código permita seleção múltipla)
+                if (selectedRows > 1) {
+                    JOptionPane.showMessageDialog(dialog, "Por favor, selecione apenas 1 produto.", "Erro", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    // Recupera o ID do produto selecionado (coluna "ID" - índice 7)
+                    Long productId = (Long) tableComponent.getProductTable().getValueAt(selectedRow, 7);
+
+                    int quantity;
+                    try {
+                        quantity = Integer.parseInt(quantitySaleField.getText()); // Pega a quantidade digitada
+                    } catch (NumberFormatException ex) {
+                        JOptionPane.showMessageDialog(dialog, "Quantidade inválida.", "Erro", JOptionPane.ERROR_MESSAGE);
+                        btnSave.setEnabled(true); // Reativa o botão em caso de erro
+                        return;
+                    }
+
+                    // Aqui você pode fazer a consulta ao banco de dados usando o ID
+                    ProductDTO selectedProduct = addSelectedProduct(productId);
+
+                    if (selectedProduct != null) {
+                        if (quantity <= selectedProduct.getTotalStock()) {
+                            selectedItem = new InvoiceItemDTO(selectedProduct, quantity, selectedProduct.getPrice());
+                            // Fechar o diálogo e passar os dados
+                            dialog.dispose();
+                        } else {
+                            JOptionPane.showMessageDialog(dialog, "Quantidade indisponível em estoque.", "Erro", JOptionPane.ERROR_MESSAGE);
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(dialog, "Produto não encontrado.", "Erro", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
             }
 
             btnSave.setEnabled(true);

@@ -50,7 +50,7 @@ public class ClientItemModal extends JDialog {
         SearchBar searchBar = new SearchBar();
 
         // Adiciona o painel de busca acima da tabela
-        JPanel searchPanel = searchBar.getSearchPanel(tableComponent,API_URL, API_URL + "/searchclients/", ClientDTO[].class);
+        JPanel searchPanel = searchBar.getSearchPanel(tableComponent,API_URL, API_URL + "/search-clients/", ClientDTO[].class);
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.add(searchPanel, BorderLayout.NORTH); // Barra de busca acima
         add(centerPanel, BorderLayout.CENTER);
@@ -75,7 +75,7 @@ public class ClientItemModal extends JDialog {
                     JOptionPane.showMessageDialog(dialog, "Por favor, selecione apenas 1 cliente.", "Erro", JOptionPane.ERROR_MESSAGE);
                 } else {
                     // Obtém o produto do cliente selecionado
-                    Long productId = (Long) tableComponent.getClientTable().getValueAt(tableComponent.getClientTable().getSelectedRow(), 4);
+                    Long productId = (Long) tableComponent.getClientTable().getValueAt(tableComponent.getClientTable().getSelectedRow(), 5);
 
                     // Adiciona o cliente selecionado
                     ClientDTO selecClient = addSelectedClient(productId);

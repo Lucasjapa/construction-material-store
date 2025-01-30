@@ -10,8 +10,6 @@ import projectpoo.construction_material_store.screens.components.TableComponent;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,8 +20,8 @@ public class ProductFrame extends JFrame {
 
     public ProductFrame(MainScreen mainScreen) {
         this.mainScreen = mainScreen;
-        setTitle("Tela de Produtos");
-        setSize(700, 600);
+        setTitle("Produtos");
+        setSize(900, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -44,7 +42,7 @@ public class ProductFrame extends JFrame {
         SearchBar searchBar = new SearchBar();
 
         // Adiciona o painel de busca acima da tabela
-        JPanel searchPanel = searchBar.getSearchPanel(tableComponent,API_URL,API_URL + "/searchproducts/", ProductDTO[].class);
+        JPanel searchPanel = searchBar.getSearchPanel(tableComponent,API_URL,API_URL + "/search-products/", ProductDTO[].class);
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.add(searchPanel, BorderLayout.NORTH); // Barra de busca acima
         centerPanel.add(scrollPane, BorderLayout.CENTER); // Tabela no centro

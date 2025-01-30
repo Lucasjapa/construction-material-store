@@ -16,6 +16,7 @@ public class InvoiceDTO {
     private String saleDate;
     private List<InvoiceItemDTO> invoiceItens;
     private String status;
+    private String codInvoice;
 
     public InvoiceDTO() {
     }
@@ -36,6 +37,7 @@ public class InvoiceDTO {
         this.saleDate = invoice.getSaleDate().format(formatter);
         this.invoiceItens = invoice.getInvoiceItems().stream().map(InvoiceItemDTO::new).collect(Collectors.toList());
         this.status = invoice.getStatus().toString();
+        this.codInvoice = invoice.getCodInvoice();
     }
 
     public long getId() {
@@ -80,6 +82,10 @@ public class InvoiceDTO {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getCodInvoice() {
+        return codInvoice;
     }
 
     // Método para converter de ProductDTO para Product

@@ -21,7 +21,7 @@ public class ClientFrame extends JFrame {
     public ClientFrame(MainScreen mainScreen) {
         this.mainScreen = mainScreen;
         setTitle("Clientes");
-        setSize(700, 600);
+        setSize(900, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
@@ -42,7 +42,7 @@ public class ClientFrame extends JFrame {
         SearchBar searchBar = new SearchBar();
 
         // Adiciona o painel de busca acima da tabela
-        JPanel searchPanel = searchBar.getSearchPanel(tableComponent,API_URL, API_URL + "/searchclients/", ClientDTO[].class);
+        JPanel searchPanel = searchBar.getSearchPanel(tableComponent,API_URL, API_URL + "/search-clients/", ClientDTO[].class);
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.add(searchPanel, BorderLayout.NORTH); // Barra de busca acima
         centerPanel.add(scrollPane, BorderLayout.CENTER); // Tabela no centro
@@ -100,7 +100,7 @@ public class ClientFrame extends JFrame {
         for (int i = 0; i < tableModel.getRowCount(); i++) {
             Boolean isSelected = (Boolean) tableModel.getValueAt(i, 0);
             if (isSelected) {
-                clientId = (Long) tableModel.getValueAt(i, 3);
+                clientId = (Long) tableModel.getValueAt(i, 4);
             }
         }
 
@@ -134,7 +134,7 @@ public class ClientFrame extends JFrame {
         for (int i = 0; i < tableModel.getRowCount(); i++) {
             Boolean isSelected = (Boolean) tableModel.getValueAt(i, 0);
             if (isSelected) {
-                Long clientId = (Long) tableModel.getValueAt(i, 3); // Obtém o id do produto
+                Long clientId = (Long) tableModel.getValueAt(i, 4); // Obtém o id do produto
                 if (clientId != null) {
                     clientsToDelete.add(clientId); // Adiciona o id à lista
                 }

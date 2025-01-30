@@ -113,6 +113,7 @@ public class TableComponent {
                         client.getName(),
                         client.getCpfCnpj(),
                         client.getEmail(),
+                        client.getPhoneNumber(),
                         client.getId()
                 });
             }
@@ -120,12 +121,13 @@ public class TableComponent {
             return tableModel;
 
         } else if (items instanceof InvoiceDTO[]) {
-        String[] columnNames = {"Selecionar", "CPF/CNPJ", "Data da venda", "Total", "Status", "ID"};
+        String[] columnNames = {"Selecionar","Cod. Nota Fiscal", "CPF/CNPJ", "Data da venda", "Total", "Status", "ID"};
         DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
 
         for (InvoiceDTO invoiceDTO : (InvoiceDTO[]) items) {
             tableModel.addRow(new Object[]{
                     false,
+                    invoiceDTO.getCodInvoice(),
                     invoiceDTO.getClient().getCpfCnpj(),
                     invoiceDTO.getSaleDate(),
                     invoiceDTO.getTotalPrice(),
@@ -168,9 +170,9 @@ public class TableComponent {
         table.getColumnModel().getColumn(0).setCellRenderer(new JCheckBoxRenderer()); // Renderer para exibir o JCheckBox
 
         // Ocultar a coluna "ID"
-        table.getColumnModel().getColumn(5).setMaxWidth(0);
-        table.getColumnModel().getColumn(5).setMinWidth(0);
-        table.getColumnModel().getColumn(5).setPreferredWidth(0);
+        table.getColumnModel().getColumn(6).setMaxWidth(0);
+        table.getColumnModel().getColumn(6).setMinWidth(0);
+        table.getColumnModel().getColumn(6).setPreferredWidth(0);
     }
 
     static class JCheckBoxRenderer extends JCheckBox implements TableCellRenderer {

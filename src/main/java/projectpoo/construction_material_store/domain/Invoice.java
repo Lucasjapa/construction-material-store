@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "POO_Invoice")
@@ -26,6 +27,9 @@ public class Invoice {
     private Double totalPrice;
 
     @Column(nullable = false)
+    private String codInvoice;
+
+    @Column(nullable = false)
     private LocalDateTime saleDate = LocalDateTime.now();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -44,6 +48,7 @@ public class Invoice {
         this.totalPrice = totalPrice;
         this.invoiceItems = invoiceItems;
         this.status = status;
+        this.codInvoice = UUID.randomUUID().toString().replace("-", "").substring(0, 15);
     }
 
     public Long getId() {
@@ -88,6 +93,10 @@ public class Invoice {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public String getCodInvoice() {
+        return codInvoice;
     }
 
     public enum Status {

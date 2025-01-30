@@ -11,5 +11,5 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
 
     Client findClientById(Long id);
 
-    List<Client> findByNameContainingIgnoreCase(String name);
+    List<Client> findByCpfCnpjContainingIgnoreCase(String cpfCnpj);
 }
