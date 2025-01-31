@@ -30,7 +30,7 @@ public class ProductService {
 
     // Método para buscar todos os produtos
     public List<Product> getAllProducts() {
-        return productRepository.findAll();
+        return productRepository.findAllByOrderByNameAsc();
     }
 
     // Método para buscar um produto pelo nome

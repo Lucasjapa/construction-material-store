@@ -33,7 +33,7 @@ public class SaleModal extends JDialog {
     String dialogTitle = isEdit ? "Editar venda" : "Criar venda";
 
     JDialog dialog = new JDialog(this, dialogTitle, true);
-    dialog.setSize(650, 600);
+    dialog.setSize(750, 600);
     dialog.setLocationRelativeTo(this);
 
     // Painel principal com BorderLayout

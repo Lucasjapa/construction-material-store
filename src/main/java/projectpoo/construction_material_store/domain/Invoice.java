@@ -1,8 +1,8 @@
 package projectpoo.construction_material_store.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -31,7 +31,7 @@ public class Invoice {
     private String codInvoice;
 
     @Column(nullable = false)
-    private LocalDateTime saleDate = LocalDateTime.now();
+    private LocalDate saleDate = LocalDate.now();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "id_invoice")
@@ -72,11 +72,11 @@ public class Invoice {
         this.totalPrice = totalPrice;
     }
 
-    public LocalDateTime getSaleDate() {
+    public LocalDate getSaleDate() {
         return saleDate;
     }
 
-    public void setSaleDate(LocalDateTime saleDate) {
+    public void setSaleDate(LocalDate saleDate) {
         this.saleDate = saleDate;
     }
 

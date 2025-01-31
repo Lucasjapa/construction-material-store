@@ -19,7 +19,7 @@ public class ProductModal extends JDialog {
     }
 
     public void productActionModal(TableComponent tableComponent, ProductDTO productDto) {
-        // Determina se é criação ou edição
+        // Determine if it is creation or editing
         boolean isEdit = productDto != null;
         String dialogTitle = isEdit ? "Editar Produto" : "Criar Produto";
 
@@ -27,11 +27,15 @@ public class ProductModal extends JDialog {
         dialog.setSize(650, 400);
         dialog.setLocationRelativeTo(this);
 
-        // Painel para os campos
-        JPanel panel = new JPanel(new GridLayout(13, 2, 5, 5));
+        // Main panel with BorderLayout
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Panel for the fields
+        JPanel panel = new JPanel(new GridLayout(9, 2, 5, 5));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Campos de entrada
+        // Input fields
         panel.add(new JLabel("Nome: (ex: Cimento Poty)"));
         JTextField nameField = new JTextField(isEdit ? productDto.getName() : "");
         panel.add(nameField);
@@ -60,8 +64,6 @@ public class ProductModal extends JDialog {
         JTextField priceField = new JTextField(isEdit ? String.valueOf(productDto.getPrice()) : "");
         panel.add(priceField);
 
-
-
         panel.add(new JLabel("Data de Validade: (dd-mm-aaaa)"));
         JTextField expirationDateField = new JTextField(isEdit ? productDto.getExpirationDate() : "");
         panel.add(expirationDateField);
@@ -72,11 +74,11 @@ public class ProductModal extends JDialog {
                 "Materiais Hidráulicos", "Madeiras e Compensados", "Ferragens", "Pisos e Revestimentos",
                 "Iluminação", "Decoração", "Jardinagem", "Outros"
         });
-        // Define a categoria selecionada com base no valor do DTO
         categoryList.setSelectedItem(isEdit ? productDto.getCategory() : "");
         panel.add(categoryList);
 
-        // Botão de salvar
+        // Panel for the save button
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnSave = new JButton(isEdit ? "Atualizar" : "Salvar");
         btnSave.addActionListener(e -> {
             String name = nameField.getText();
@@ -93,7 +95,7 @@ public class ProductModal extends JDialog {
             double minStock = Double.parseDouble(minStockStr);
             double price = Double.parseDouble(priceStr);
 
-            // Validação dos campos
+            // Field validation
             if (name.isEmpty() || codProduct.isEmpty() || totalStockStr.isEmpty() ||
                     minStockStr.isEmpty() || priceStr.isEmpty() || salesUnit.isEmpty()) {
                 JOptionPane.showMessageDialog(dialog, "Todos os campos são obrigatórios.", "Erro", JOptionPane.ERROR_MESSAGE);
@@ -105,14 +107,11 @@ public class ProductModal extends JDialog {
                 return;
             }
 
-            // Criar produto
-            btnSave.setEnabled(false); // Desabilita o botão para evitar múltiplos cliques
+            // Create or update product
+            btnSave.setEnabled(false); // Disable the button to avoid multiple clicks
 
             try {
-
-                // Criação ou atualização
                 if (isEdit) {
-                    // Atualizar o produto existente
                     productDto.setName(name);
                     productDto.setCodProduct(codProduct);
                     productDto.setDescription(description);
@@ -123,19 +122,17 @@ public class ProductModal extends JDialog {
                     productDto.setExpirationDate(expirationDate);
                     productDto.setCategory(category);
 
-                    updateProduct(productDto); // Chame o método de atualização
+                    updateProduct(productDto); // Call the update method
                     JOptionPane.showMessageDialog(dialog, "Produto atualizado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    // Cria o objeto Product com os novos atributos
                     ProductDTO newProduct = new ProductDTO(name, codProduct, totalStock, description, minStock, price, salesUnit, expirationDate, category);
 
-                    // Criar um novo produto
                     createProduct(newProduct);
                     JOptionPane.showMessageDialog(dialog, "Produto criado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                 }
 
-                tableComponent.loadData(API_URL, ProductDTO[].class); // Atualizar lista de produtos
-                dialog.dispose(); // Fechar o diálogo
+                tableComponent.loadData(API_URL, ProductDTO[].class); // Update product list
+                dialog.dispose(); // Close the dialog
             } catch (DateTimeParseException ex) {
                 JOptionPane.showMessageDialog(dialog, "Formato de data inválido. Use dd-mm-aaaa.", "Erro", JOptionPane.ERROR_MESSAGE);
             } catch (NumberFormatException ex) {
@@ -144,14 +141,15 @@ public class ProductModal extends JDialog {
                 JOptionPane.showMessageDialog(dialog, "Erro ao criar produto", "Erro", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
             } finally {
-                btnSave.setEnabled(true); // Reativa o botão, mesmo em caso de erro
+                btnSave.setEnabled(true); // Re-enable the button, even in case of error
             }
         });
 
-        panel.add(new JLabel()); // Espaço vazio para alinhar o botão
-        panel.add(btnSave);
+        buttonPanel.add(btnSave);
+        mainPanel.add(panel, BorderLayout.CENTER);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        dialog.add(panel);
+        dialog.add(mainPanel);
         dialog.setVisible(true);
     }
 

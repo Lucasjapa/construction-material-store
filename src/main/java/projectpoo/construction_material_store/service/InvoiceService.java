@@ -10,6 +10,7 @@ import projectpoo.construction_material_store.dto.InvoiceDTO;
 import projectpoo.construction_material_store.dto.InvoiceItemDTO;
 import projectpoo.construction_material_store.repository.InvoiceRepository;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,26 +60,17 @@ public class InvoiceService {
         return invoiceRepository.findInvoiceById(id);
     }
 
-    public void deleteInvoice(Long id) {
-        invoiceRepository.deleteById(id);
-    }
+    public long getTotalInvoicesForCurrentMonth() {
+        LocalDate today = LocalDate.now();
 
-    public boolean deleteInvoiceById(Long id) {
-        if (invoiceRepository.existsById(id)) {
-            invoiceRepository.deleteById(id);
-            return true;
-        } else {
-            return false;
-        }
-    }
+        // Primeiro dia do mês atual
+        LocalDate startOfMonth = today.withDayOfMonth(1);
 
-    public boolean deleteInvoicesByIds(List<Long> ids) {
-        List<Invoice> InvoicesToDelete = invoiceRepository.findAllById(ids);
-        if (!InvoicesToDelete.isEmpty()) {
-            invoiceRepository.deleteAll(InvoicesToDelete);
-            return true;
-        }
-        return false;
+        // Último dia do mês atual
+        LocalDate endOfMonth = today.withDayOfMonth(today.lengthOfMonth());
+
+        // Chama o método do repositório com o intervalo de datas
+        return invoiceRepository.countByCurrentMonth(startOfMonth, endOfMonth);
     }
 }
 

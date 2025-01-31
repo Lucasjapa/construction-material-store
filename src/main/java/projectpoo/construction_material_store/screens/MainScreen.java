@@ -14,42 +14,67 @@ public class MainScreen extends JFrame {
 
     public MainScreen() {
         setTitle("Tela Inicial");
-        setSize(800, 600);
+        setSize(900, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout()); // Define layout principal
+        setLayout(new BorderLayout());
 
-        // Barra lateral à esquerda
+        // Painel lateral à esquerda
         JPanel sidePanel = new JPanel();
-        sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS)); // Botões organizados verticalmente
-        sidePanel.setPreferredSize(new Dimension(200, getHeight()));
+        sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
+        sidePanel.setPreferredSize(new Dimension(200, 600));
         sidePanel.setBackground(Color.LIGHT_GRAY);
+        sidePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Margem interna
 
-        // Botões na barra lateral
+        // Criando um painel para os botões (mantendo-os no topo)
+        JPanel buttonContainer = new JPanel();
+        buttonContainer.setLayout(new BoxLayout(buttonContainer, BoxLayout.Y_AXIS));
+        buttonContainer.setOpaque(false); // Fundo transparente para manter a cor do sidePanel
+
+        // Criando botões
         JButton btnProduct = new JButton("Produtos");
         JButton btnClient = new JButton("Clientes");
         JButton btnSale = new JButton("Vendas");
 
-        // Adiciona botões à barra lateral
-        sidePanel.add(btnProduct);
-        sidePanel.add(Box.createVerticalStrut(10)); // Espaçamento entre os botões
-        sidePanel.add(btnClient);
-        sidePanel.add(btnSale);
+        // Definir tamanho fixo dos botões
+        Dimension buttonSize = new Dimension(140, 30);
+        btnProduct.setMaximumSize(buttonSize);
+        btnClient.setMaximumSize(buttonSize);
+        btnSale.setMaximumSize(buttonSize);
 
-        // Painel principal onde os dados serão exibidos
+        // Alinhar os botões ao centro horizontalmente (não afeta o alinhamento no eixo Y)
+        btnProduct.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+        btnClient.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+        btnSale.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+
+        // Adicionando os botões ao painel de botões
+        buttonContainer.add(btnProduct);
+        buttonContainer.add(Box.createRigidArea(new Dimension(0, 10))); // Espaço entre botões
+        buttonContainer.add(btnClient);
+        buttonContainer.add(Box.createRigidArea(new Dimension(0, 10)));
+        buttonContainer.add(btnSale);
+
+        // Adicionando o painel de botões no topo do sidePanel
+        sidePanel.add(buttonContainer);
+
+        // Painel principal
         contentPanel = new JPanel();
-        contentPanel.setLayout(new BorderLayout()); // Flexibilidade para diferentes conteúdos
+        contentPanel.setLayout(new BorderLayout());
         contentPanel.setBackground(Color.WHITE);
 
-        // Define ações dos botões
+        DashboardScreen dashboardScreen = new DashboardScreen();
+        contentPanel.add(dashboardScreen, BorderLayout.CENTER);
+
+        // Definir ações dos botões
         btnProduct.addActionListener(e -> openProductFrame());
         btnClient.addActionListener(e -> openClientFrame());
         btnSale.addActionListener(e -> openSalesFrame());
 
         // Adiciona os painéis ao frame principal
-        add(sidePanel, BorderLayout.WEST); // Barra lateral à esquerda
-        add(contentPanel, BorderLayout.CENTER); // Área de exibição central
+        add(sidePanel, BorderLayout.WEST);
+        add(contentPanel, BorderLayout.CENTER);
     }
+
 
     private void openProductFrame() {
         // Abre a tela de produtos

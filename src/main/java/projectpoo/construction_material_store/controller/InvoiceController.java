@@ -71,4 +71,11 @@ public class InvoiceController {
             return ResponseEntity.status(404).body(null);
         }
     }
+
+    // Endpoint para retornar o total de faturas do mês atual
+    @GetMapping("/total-current-month")
+    public ResponseEntity<Long> getTotalInvoicesForCurrentMonth() {
+        long totalInvoices = invoiceService.getTotalInvoicesForCurrentMonth();
+        return ResponseEntity.ok(totalInvoices);
+    }
 }
