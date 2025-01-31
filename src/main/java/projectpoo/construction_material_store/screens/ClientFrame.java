@@ -100,7 +100,7 @@ public class ClientFrame extends JFrame {
         for (int i = 0; i < tableModel.getRowCount(); i++) {
             Boolean isSelected = (Boolean) tableModel.getValueAt(i, 0);
             if (isSelected) {
-                clientId = (Long) tableModel.getValueAt(i, 4);
+                clientId = (Long) tableModel.getValueAt(i, 5);
             }
         }
 

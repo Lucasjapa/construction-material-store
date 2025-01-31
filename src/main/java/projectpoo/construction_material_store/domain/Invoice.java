@@ -1,5 +1,6 @@
 package projectpoo.construction_material_store.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -19,7 +20,7 @@ public class Invoice {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "poo_invoice_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_cliente", nullable = false)
     private Client client;
 

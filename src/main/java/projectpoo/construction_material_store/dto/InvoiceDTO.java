@@ -88,7 +88,6 @@ public class InvoiceDTO {
         return codInvoice;
     }
 
-    // Método para converter de ProductDTO para Product
     public Invoice toInvoice(Client client, List<InvoiceItem> invoiceItems) {
         Invoice.Status statusEnum = Invoice.Status.valueOf(this.status);
 

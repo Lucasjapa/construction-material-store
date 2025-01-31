@@ -1,6 +1,7 @@
 package projectpoo.construction_material_store.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import projectpoo.construction_material_store.domain.Client;
@@ -45,29 +46,29 @@ public class InvoiceController {
                 .collect(Collectors.toList());
     }
 
-    @DeleteMapping("/{id}")
-    // Mapeia uma requisição DELETE para excluir um produto pelo ID
-    public ResponseEntity<String> deleteInvoice(@PathVariable Long id) {
-        // Verifica se o produto foi excluído com sucesso
-        boolean isDeleted = invoiceService.deleteInvoiceById(id);
-        if (isDeleted) {
-            return ResponseEntity.ok("Produto excluído com sucesso!");
+    @GetMapping("/{id}")
+    // Mapeia uma requisição GET para buscar um cliente pelo seu ID
+    public ResponseEntity<InvoiceDTO> getInvoiceById(@PathVariable Long id) {
+        Invoice invoice = invoiceService.getInvoiceById(id);
+
+        if (invoice != null) {
+            return ResponseEntity.ok(new InvoiceDTO(invoice));
         } else {
-            // Retorna uma mensagem de erro caso o produto não seja encontrado
-            return ResponseEntity.status(404).body("Produto não encontrado.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
 
-    @DeleteMapping
-    // Mapeia uma requisição DELETE para excluir múltiplos produtos com base em uma lista de IDs
-    public ResponseEntity<String> deleteInvoices(@RequestBody List<Long> ids) {
-        // Verifica se todos os produtos da lista foram excluídos com sucesso
-        boolean allDeleted = invoiceService.deleteInvoicesByIds(ids);
-        if (allDeleted) {
-            return ResponseEntity.ok("Todos os produtos foram excluídos com sucesso!");
+    @PutMapping("/update-invoice/{id}")
+    public ResponseEntity<Invoice> updateInvoice(@PathVariable Long id, @RequestBody InvoiceDTO invoiceDTO) {
+        // Verifica se a fatura existe
+        Invoice existingInvoice = invoiceService.getInvoiceById(id);
+
+        if (existingInvoice != null) {
+            Invoice updatedInvoice = invoiceService.updateInvoice(id, invoiceDTO);
+            return ResponseEntity.ok(updatedInvoice);
         } else {
-            // Retorna um status 207 (Multi-Status) caso alguns produtos não tenham sido encontrados ou excluídos
-            return ResponseEntity.status(207).body("Alguns produtos não foram encontrados ou não puderam ser excluídos.");
+            // Retorna um status 404 caso a fatura não seja encontrada
+            return ResponseEntity.status(404).body(null);
         }
     }
 }

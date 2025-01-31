@@ -38,12 +38,25 @@ public class InvoiceService {
         return invoiceRepository.save(invoiceDTO.toInvoice(client, invoiceItems));
     }
 
+    public Invoice updateInvoice(Long id, InvoiceDTO invoiceDTO) {
+        Invoice existingInvoice = invoiceRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Invoice not found"));
+
+        existingInvoice.setStatus(Invoice.Status.valueOf(invoiceDTO.getStatus()));
+
+        return invoiceRepository.save(existingInvoice);
+    }
+
     public List<Invoice> getAllInvoices() {
-        return invoiceRepository.findAll();
+        return invoiceRepository.findAllByOrderByCodInvoiceAsc();
     }
 
     public List<Invoice> getInvoicesByCodInvoice(String codInvoice) {
         return invoiceRepository.findByCodInvoiceContainingIgnoreCase(codInvoice);
+    }
+
+    public Invoice getInvoiceById(long id) {
+        return invoiceRepository.findInvoiceById(id);
     }
 
     public void deleteInvoice(Long id) {

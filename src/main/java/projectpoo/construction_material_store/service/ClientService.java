@@ -18,7 +18,7 @@ public class ClientService {
     }
 
     public List<Client> getAllClients() {
-        return clientRepository.findAll();
+        return clientRepository.findAllByOrderByNameAsc();
     }
 
     public List<Client> getClientsByCpfCnpj(String cpfCnpj) {

@@ -1,14 +1,13 @@
 package projectpoo.construction_material_store.screens;
 
+import org.springframework.web.client.RestTemplate;
 import projectpoo.construction_material_store.dto.ClientDTO;
 import projectpoo.construction_material_store.dto.InvoiceDTO;
-import projectpoo.construction_material_store.dto.ProductDTO;
 import projectpoo.construction_material_store.screens.components.*;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 
 public class SalesFrame extends JFrame {
 
@@ -77,7 +76,7 @@ public class SalesFrame extends JFrame {
         rightPanel.add(btnCreateProduct);
 
         JButton btnUpdateProduct = new JButton("Editar Venda");
-        btnUpdateProduct.addActionListener(e -> updateSelectedProduct(tableComponent, productModal));
+        btnUpdateProduct.addActionListener(e -> updateSelectedInvoice(tableComponent, saleModal));
         rightPanel.add(btnUpdateProduct);
 
         // Adiciona os painéis ao painel principal
@@ -85,5 +84,37 @@ public class SalesFrame extends JFrame {
         buttonPanel.add(rightPanel, BorderLayout.EAST); // Outros botões à direita
 
         return buttonPanel;
+    }
+
+    private void updateSelectedInvoice(TableComponent tableComponent, SaleModal saleModal) {
+        Long invoiceId = null;
+
+        // Obtém o modelo da tabela
+        DefaultTableModel tableModel = (DefaultTableModel) tableComponent.getInvoiceTable().getModel();
+
+        for (int i = 0; i < tableModel.getRowCount(); i++) {
+            Boolean isSelected = (Boolean) tableModel.getValueAt(i, 0);
+            if (isSelected) {
+                invoiceId = (Long) tableModel.getValueAt(i, 6);
+            }
+        }
+
+        // Verifica se a lista de produtos selecionados não está vazia
+        if (invoiceId != null) {
+            // Chame a API para deletar os produtos com os IDs armazenados
+            InvoiceDTO invoiceDTO = getInvoiceById(invoiceId);
+            saleModal.saleActionModal(tableComponent, invoiceDTO);
+        } else {
+            JOptionPane.showMessageDialog(this, "Nenhuma nota fiscal selecionada para edição.", "Erro", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private InvoiceDTO getInvoiceById(Long invoiceId) {
+        // Criar uma instância de RestTemplate
+        RestTemplate restTemplate = new RestTemplate();
+
+        // Chama a API para obter o produto
+        String getUrl = API_URL + "/" + invoiceId;
+        return restTemplate.getForObject(getUrl, InvoiceDTO.class);
     }
 }
