@@ -68,7 +68,7 @@ public class MainScreen extends JFrame {
         // Definir ações dos botões
         btnProduct.addActionListener(e -> openProductFrame());
         btnClient.addActionListener(e -> openClientFrame());
-        btnSale.addActionListener(e -> openSalesFrame());
+        btnSale.addActionListener(e -> openSalesFrame(dashboardScreen));
 
         // Adiciona os painéis ao frame principal
         add(sidePanel, BorderLayout.WEST);
@@ -90,9 +90,9 @@ public class MainScreen extends JFrame {
         this.setVisible(false); // Apenas esconde a MainScreen
     }
 
-    private void openSalesFrame() {
+    private void openSalesFrame(DashboardScreen dashboardScreen) {
         // Abre a tela de clientes
-        SalesFrame salesFrame = new SalesFrame(this); // Passa a MainScreen como referência
+        SalesFrame salesFrame = new SalesFrame(this, dashboardScreen); // Passa a MainScreen como referência
         salesFrame.setVisible(true);
         this.setVisible(false); // Apenas esconde a MainScreen
     }

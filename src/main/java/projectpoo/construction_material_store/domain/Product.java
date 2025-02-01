@@ -1,7 +1,6 @@
 package projectpoo.construction_material_store.domain;
 
 import jakarta.persistence.*;
-import projectpoo.construction_material_store.dto.ClientDTO;
 import projectpoo.construction_material_store.dto.ProductDTO;
 
 import java.time.LocalDateTime;

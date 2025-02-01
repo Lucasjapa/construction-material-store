@@ -14,7 +14,7 @@ public class SalesFrame extends JFrame {
     private static final String API_URL = "http://localhost:8080/invoices"; // URL da sua API
     private final MainScreen mainScreen;
 
-    public SalesFrame(MainScreen mainScreen) {
+    public SalesFrame(MainScreen mainScreen, DashboardScreen dashboardScreen) {
         this.mainScreen = mainScreen;
         setTitle("Vendas");
         setSize(900, 800);
@@ -45,7 +45,7 @@ public class SalesFrame extends JFrame {
         add(centerPanel, BorderLayout.CENTER);
 
         // Adiciona o painel de botões ao layout no local apropriado (parte inferior)
-        JPanel buttonPanel = getButtonPanel(tableComponent);
+        JPanel buttonPanel = getButtonPanel(tableComponent, dashboardScreen);
         add(buttonPanel, BorderLayout.SOUTH);
 
         try {
@@ -56,7 +56,7 @@ public class SalesFrame extends JFrame {
 
     }
 
-    private JPanel getButtonPanel(TableComponent tableComponent) {
+    private JPanel getButtonPanel(TableComponent tableComponent, DashboardScreen dashboardScreen) {
         SaleModal saleModal = new SaleModal();
 
         // Painel principal de botões com BorderLayout
@@ -72,7 +72,7 @@ public class SalesFrame extends JFrame {
         // Painel para os outros botões no lado direito
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton btnCreateProduct = new JButton("Nova Venda");
-        btnCreateProduct.addActionListener(e -> saleModal.saleActionModal(tableComponent, null));
+        btnCreateProduct.addActionListener(e -> saleModal.saleActionModal(tableComponent, null, dashboardScreen));
         rightPanel.add(btnCreateProduct);
 
         JButton btnUpdateProduct = new JButton("Editar Venda");
@@ -103,7 +103,7 @@ public class SalesFrame extends JFrame {
         if (invoiceId != null) {
             // Chame a API para deletar os produtos com os IDs armazenados
             InvoiceDTO invoiceDTO = getInvoiceById(invoiceId);
-            saleModal.saleActionModal(tableComponent, invoiceDTO);
+            saleModal.saleActionModal(tableComponent, invoiceDTO, null);
         } else {
             JOptionPane.showMessageDialog(this, "Nenhuma nota fiscal selecionada para edição.", "Erro", JOptionPane.ERROR_MESSAGE);
         }

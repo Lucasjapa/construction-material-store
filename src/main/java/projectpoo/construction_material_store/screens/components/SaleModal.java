@@ -9,6 +9,7 @@ import projectpoo.construction_material_store.domain.Invoice;
 import projectpoo.construction_material_store.dto.ClientDTO;
 import projectpoo.construction_material_store.dto.InvoiceDTO;
 import projectpoo.construction_material_store.dto.InvoiceItemDTO;
+import projectpoo.construction_material_store.screens.DashboardScreen;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -24,7 +25,7 @@ public class SaleModal extends JDialog {
     public SaleModal() {
     }
 
-   public void saleActionModal(TableComponent tableComponent, InvoiceDTO invoiceDTO) {
+   public void saleActionModal(TableComponent tableComponent, InvoiceDTO invoiceDTO, DashboardScreen dashboardScreen) {
     // Lista para armazenar os itens selecionados
     List<InvoiceItemDTO> itens = new ArrayList<>();
 
@@ -181,6 +182,8 @@ public class SaleModal extends JDialog {
                 JOptionPane.showMessageDialog(dialog, "Venda criada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
             }
             tableComponent.loadData(API_URL, InvoiceDTO[].class);
+            // Atualizar o total de faturas na Dashboard
+            dashboardScreen.updateTotalInvoices();
             dialog.dispose();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(dialog, "Erro ao salvar venda.", "Erro", JOptionPane.ERROR_MESSAGE);
