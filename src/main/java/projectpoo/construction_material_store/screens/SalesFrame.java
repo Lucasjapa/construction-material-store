@@ -1,7 +1,6 @@
 package projectpoo.construction_material_store.screens;
 
 import org.springframework.web.client.RestTemplate;
-import projectpoo.construction_material_store.dto.ClientDTO;
 import projectpoo.construction_material_store.dto.InvoiceDTO;
 import projectpoo.construction_material_store.screens.components.*;
 

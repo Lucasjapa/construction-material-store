@@ -1,5 +1,7 @@
 package projectpoo.construction_material_store.dto;
 
+import projectpoo.construction_material_store.domain.Product;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -9,13 +11,14 @@ public class DashboardDTO {
     private long countSales;
     private List<Map<String, Object>> topMostProducts;
     private List<Map<String, Object>> topLeastProducts;
+    private List<ProductDTO> lowStockProducts;
 
 
     public DashboardDTO() {
     }
 
     // Construtor para aceitar topProducts como List<Object[]> e convertê-lo para List<Map<String, Object>>
-    public DashboardDTO(List<Object[]> topMostProducts, List<Object[]> topLeastProducts, long countSales) {
+    public DashboardDTO(List<Object[]> topMostProducts, List<Object[]> topLeastProducts, List<ProductDTO> productDTOS, long countSales) {
         this.countSales = countSales;
 
         // Convertendo List<Object[]> para List<Map<String, Object>>
@@ -33,6 +36,8 @@ public class DashboardDTO {
                         "quantity", obj[1]  // A quantidade de vendas está em obj[1]
                 ))
                 .collect(Collectors.toList());
+
+        this.lowStockProducts = productDTOS;
     }
 
     public long getCountSales() {
@@ -57,5 +62,13 @@ public class DashboardDTO {
 
     public void setTopLeastProducts(List<Map<String, Object>> topLeastProducts) {
         this.topLeastProducts = topLeastProducts;
+    }
+
+    public List<ProductDTO> getLowStockProducts() {
+        return lowStockProducts;
+    }
+
+    public void setLowStockProducts(List<ProductDTO> lowStockProducts) {
+        this.lowStockProducts = lowStockProducts;
     }
 }

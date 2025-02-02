@@ -43,6 +43,10 @@ public class ProductService {
         return productRepository.findProductById(id);
     }
 
+    public List<Product> getLowStockProducts() {
+        return productRepository.findLowStockProducts();
+    }
+
     public boolean deleteProductById(Long id) {
         if (productRepository.existsById(id)) {
             productRepository.deleteById(id);

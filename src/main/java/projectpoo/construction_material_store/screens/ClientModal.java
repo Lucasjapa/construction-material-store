@@ -1,4 +1,4 @@
-package projectpoo.construction_material_store.screens.components;
+package projectpoo.construction_material_store.screens;
 
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import projectpoo.construction_material_store.domain.Client;
 import projectpoo.construction_material_store.dto.ClientDTO;
+import projectpoo.construction_material_store.screens.components.TableComponent;
 
 import javax.swing.*;
 import java.awt.*;

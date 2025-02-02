@@ -3,7 +3,6 @@ package projectpoo.construction_material_store.screens;
 import org.springframework.web.client.RestTemplate;
 import projectpoo.construction_material_store.dto.ProductDTO;
 import projectpoo.construction_material_store.screens.components.BackButton;
-import projectpoo.construction_material_store.screens.components.ProductModal;
 import projectpoo.construction_material_store.screens.components.SearchBar;
 import projectpoo.construction_material_store.screens.components.TableComponent;
 
