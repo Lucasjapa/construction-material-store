@@ -19,5 +19,11 @@ public class InvoiceItemService {
         Pageable pageable = PageRequest.of(0, 3);
         return invoiceItemRepository.findTop3MostFrequentProducts(pageable);
     }
+
+    // Método para obter os 3 produtos mais vendidos (frequentes)
+    public List<Object[]> getTop3LeastFrequentProducts() {
+        Pageable pageable = PageRequest.of(0, 3);
+        return invoiceItemRepository.findTop3LeastFrequentProducts(pageable);
+    }
 }
 

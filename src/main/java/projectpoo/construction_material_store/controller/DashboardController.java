@@ -26,8 +26,9 @@ public class DashboardController {
     // Endpoint para buscar os 3 produtos mais vendidos
     @GetMapping
     public ResponseEntity<DashboardDTO> getDashboard() {
-        List<Object[]> topProducts = invoiceItemService.getTop3MostFrequentProducts();
-        DashboardDTO dashboardDTO = new DashboardDTO(topProducts, invoiceService.getTotalInvoicesForCurrentMonth());
+        List<Object[]> topMostProducts = invoiceItemService.getTop3MostFrequentProducts();
+        List<Object[]> topLeastProducts = invoiceItemService.getTop3LeastFrequentProducts();
+        DashboardDTO dashboardDTO = new DashboardDTO(topMostProducts, topLeastProducts, invoiceService.getTotalInvoicesForCurrentMonth());
 
         return ResponseEntity.ok(dashboardDTO);
     }
