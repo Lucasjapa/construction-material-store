@@ -15,7 +15,6 @@ import java.util.Map;
 public class DashboardScreen extends JPanel {
 
     private static final String API_URL_TOTAL_INVOICES = "http://localhost:8080/dashboard/total-current-month";
-    private static final String API_URL_TOP3 = "http://localhost:8080/dashboard/top3";
     private static final String API_URL = "http://localhost:8080/dashboard";
     private List<ProductDTO> lowStockProducts = new ArrayList<>();
     private JLabel labelTotalSales, titleTopProducts, titleLowProducts, titleStockEvaluation;
@@ -81,13 +80,13 @@ public class DashboardScreen extends JPanel {
 
     private class LoadInvoicesWorker extends SwingWorker<Void, Void> {
         @Override
-        protected Void doInBackground() throws Exception {
+        protected Void doInBackground() {
             if (!isApiAvailable()) return null;
             try {
                 RestTemplate restTemplate = new RestTemplate();
                 DashboardDTO dashboardDTO = restTemplate.exchange(API_URL, HttpMethod.GET, null, DashboardDTO.class).getBody();
                 lowStockProducts = dashboardDTO.getLowStockProducts();
-                updateDashboard(dashboardDTO);
+                updateDataDashboard(dashboardDTO);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -95,7 +94,7 @@ public class DashboardScreen extends JPanel {
         }
     }
 
-    private void updateDashboard(DashboardDTO dashboardDTO) {
+    private void updateDataDashboard(DashboardDTO dashboardDTO) {
         SwingUtilities.invokeLater(() -> {
             labelTotalSales.setText("Total de vendas no mês atual: " + dashboardDTO.getCountSales());
             updateProductLabels(dashboardDTO.getTopMostProducts(), labelTopProducts);
@@ -141,7 +140,7 @@ public class DashboardScreen extends JPanel {
         return false;
     }
 
-    public void updateTotalInvoices() {
+    public void updateDashboard() {
         try {
             RestTemplate restTemplate = new RestTemplate();
             Long totalInvoices = restTemplate.getForObject(API_URL_TOTAL_INVOICES, Long.class);
@@ -149,11 +148,19 @@ public class DashboardScreen extends JPanel {
             // Trata caso a API retorne null
             long total = (totalInvoices != null) ? totalInvoices : 0;
 
-            SwingUtilities.invokeLater(() -> labelTotalSales.setText("Total de faturas: " + total));
+            SwingUtilities.invokeLater(() -> {
+                labelTotalSales.setText("Total de faturas: " + total);
+                loadDashboardData();
+            });
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(null, "Erro ao atualizar total de faturas.", "Erro", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void loadDashboardData() {
+        // Esta função irá fazer a requisição e atualizar os dados do dashboard
+        new LoadInvoicesWorker().execute();
     }
 
     private JSeparator createSeparator() {

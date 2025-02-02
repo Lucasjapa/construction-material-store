@@ -17,7 +17,7 @@ public class ProductFrame extends JFrame {
     private static final String API_URL = "http://localhost:8080/products"; // URL da sua API
     private final MainScreen mainScreen;
 
-    public ProductFrame(MainScreen mainScreen) {
+    public ProductFrame(MainScreen mainScreen, DashboardScreen dashboardScreen) {
         this.mainScreen = mainScreen;
         setTitle("Produtos");
         setSize(900, 800);
@@ -48,7 +48,7 @@ public class ProductFrame extends JFrame {
         add(centerPanel, BorderLayout.CENTER);
 
         // Adiciona o painel de botões ao layout no local apropriado (parte inferior)
-        JPanel buttonPanel = getButtonPanel(tableComponent);
+        JPanel buttonPanel = getButtonPanel(tableComponent, dashboardScreen);
         add(buttonPanel, BorderLayout.SOUTH);
 
         // Tenta carregar os produtos da API
@@ -59,14 +59,14 @@ public class ProductFrame extends JFrame {
         }
     }
 
-    private JPanel getButtonPanel(TableComponent tableComponent) {
+    private JPanel getButtonPanel(TableComponent tableComponent, DashboardScreen dashboardScreen) {
         ProductModal productModal = new ProductModal();
 
         // Painel principal de botões com BorderLayout
         JPanel buttonPanel = new JPanel(new BorderLayout());
 
         // Botão "Voltar"
-        BackButton btnBack = new BackButton(this, mainScreen);
+        BackButton btnBack = new BackButton(this, mainScreen, dashboardScreen);
 
         // Painel para o botão "Voltar" no lado esquerdo
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));

@@ -17,7 +17,7 @@ public class ClientFrame extends JFrame {
     private static final String API_URL = "http://localhost:8080/clients"; // URL da sua API
     private final MainScreen mainScreen;
 
-    public ClientFrame(MainScreen mainScreen) {
+    public ClientFrame(MainScreen mainScreen, DashboardScreen dashboardScreen) {
         this.mainScreen = mainScreen;
         setTitle("Clientes");
         setSize(900, 800);
@@ -48,7 +48,7 @@ public class ClientFrame extends JFrame {
         add(centerPanel, BorderLayout.CENTER);
 
         // Adiciona o painel de botões ao layout no local apropriado (parte inferior)
-        JPanel buttonPanel = getButtonPanel(tableComponent);
+        JPanel buttonPanel = getButtonPanel(tableComponent, dashboardScreen);
         add(buttonPanel, BorderLayout.SOUTH);
         
         try {
@@ -59,13 +59,13 @@ public class ClientFrame extends JFrame {
 
     }
 
-    private JPanel getButtonPanel(TableComponent tableComponent) {
+    private JPanel getButtonPanel(TableComponent tableComponent, DashboardScreen dashboardScreen) {
         ClientModal clientModal = new ClientModal();
         // Painel principal de botões
         JPanel buttonPanel = new JPanel(new BorderLayout());
 
         // Adiciona o botão "Voltar"
-        BackButton btnBack = new BackButton(this, mainScreen);
+        BackButton btnBack = new BackButton(this, mainScreen, dashboardScreen);
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         leftPanel.add(btnBack);
 

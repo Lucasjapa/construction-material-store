@@ -33,6 +33,7 @@ public class InvoiceService {
 
         for (InvoiceItemDTO invoiceItemDTO : invoiceDTO.getInvoiceItens()) {
             Product product = productService.getProductById(invoiceItemDTO.getProduct().getId());
+            product.setTotalStock(product.getTotalStock() - invoiceItemDTO.getQuantitySale());
             invoiceItems.add(new InvoiceItem(product, invoiceItemDTO.getQuantitySale(), invoiceItemDTO.getUnitPrice()));
         }
 

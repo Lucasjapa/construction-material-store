@@ -2,9 +2,6 @@ package projectpoo.construction_material_store.dto;
 
 import projectpoo.construction_material_store.domain.Product;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 public class ProductDTO {
 
     private Long id;
@@ -15,13 +12,22 @@ public class ProductDTO {
     private double minStock;
     private double price;
     private String salesUnit;
-    private String expirationDate;
     private String category;  // Usando String ao invés de enum para facilitar a conversão em APIs
 
     // Construtores
-    public ProductDTO() {}
+    public ProductDTO() {
+    }
 
-    public ProductDTO(String name, String codProduct, double totalStock, String description, double minStock, double price, String salesUnit, String expirationDate, String category) {
+    public ProductDTO(
+            String name,
+            String codProduct,
+            double totalStock,
+            String description,
+            double minStock,
+            double price,
+            String salesUnit,
+            String category
+    ) {
         this.name = name;
         this.codProduct = codProduct;
         this.totalStock = totalStock;
@@ -29,12 +35,10 @@ public class ProductDTO {
         this.minStock = minStock;
         this.price = price;
         this.salesUnit = salesUnit;
-        this.expirationDate = expirationDate;
         this.category = category;
     }
 
     public ProductDTO(Product product) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
         this.id = product.getId();
         this.name = product.getName();
@@ -44,9 +48,6 @@ public class ProductDTO {
         this.minStock = product.getMinStock();
         this.price = product.getPrice();
         this.salesUnit = product.getSalesUnit();
-        this.expirationDate = product.getExpirationDate()
-                .map(date -> date.format(formatter))
-                .orElse(null);
         this.category = product.getCategory() != null ? product.getCategory().getDescricao() : null;
     }
 
@@ -111,14 +112,6 @@ public class ProductDTO {
         this.salesUnit = salesUnit;
     }
 
-    public String getExpirationDate() {
-        return expirationDate;
-    }
-
-    public void setExpirationDate(String expirationDate) {
-        this.expirationDate = expirationDate;
-    }
-
     public String getCategory() {
         return category;
     }
@@ -130,16 +123,7 @@ public class ProductDTO {
     // Método para converter de ProductDTO para Product
     public Product toProduct() {
         Product.Category categoryEnum = Product.Category.fromDescription(category);
-        LocalDateTime expirationDateformatted;
-        if(!this.expirationDate.isEmpty()) {
-            //TODO: Criar um utils para jogar essa conversão nele, Criar o DateTimeFormatter com o padrão adequado
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-            // Converter para LocalDateTime
-            expirationDateformatted = LocalDateTime.parse(this.expirationDate + " 00:00:00", formatter);
-        } else {
-            expirationDateformatted = null;
-        }
-        
+
         return new Product(
                 this.name,
                 this.codProduct,
@@ -148,7 +132,6 @@ public class ProductDTO {
                 this.minStock,
                 this.price,
                 this.salesUnit,
-                expirationDateformatted,
                 categoryEnum
         );
     }

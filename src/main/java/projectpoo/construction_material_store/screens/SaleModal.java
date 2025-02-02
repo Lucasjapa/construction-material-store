@@ -182,7 +182,7 @@ public class SaleModal extends JDialog {
             }
             tableComponent.loadData(API_URL, InvoiceDTO[].class);
             // Atualizar o total de faturas na Dashboard
-            dashboardScreen.updateTotalInvoices();
+            dashboardScreen.updateDashboard();
             dialog.dispose();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(dialog, "Erro ao salvar venda.", "Erro", JOptionPane.ERROR_MESSAGE);

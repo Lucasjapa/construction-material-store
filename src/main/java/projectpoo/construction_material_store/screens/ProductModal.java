@@ -65,10 +65,6 @@ public class ProductModal extends JDialog {
         JTextField priceField = new JTextField(isEdit ? String.valueOf(productDto.getPrice()) : "");
         panel.add(priceField);
 
-        panel.add(new JLabel("Data de Validade: (dd-mm-aaaa)"));
-        JTextField expirationDateField = new JTextField(isEdit ? productDto.getExpirationDate() : "");
-        panel.add(expirationDateField);
-
         panel.add(new JLabel("Categorias:"));
         JComboBox<String> categoryList = new JComboBox<>(new String[]{
                 "Cimento e Argamassas", "Tintas e Acessórios", "Ferramentas", "Materiais Elétricos",
@@ -89,7 +85,6 @@ public class ProductModal extends JDialog {
             String minStockStr = minStockField.getText();
             String priceStr = priceField.getText();
             String salesUnit = salesUnitField.getText();
-            String expirationDate = expirationDateField.getText();
             String category = categoryList.getSelectedItem().toString();
 
             double totalStock = Double.parseDouble(totalStockStr);
@@ -120,13 +115,12 @@ public class ProductModal extends JDialog {
                     productDto.setMinStock(minStock);
                     productDto.setPrice(price);
                     productDto.setSalesUnit(salesUnit);
-                    productDto.setExpirationDate(expirationDate);
                     productDto.setCategory(category);
 
                     updateProduct(productDto); // Call the update method
                     JOptionPane.showMessageDialog(dialog, "Produto atualizado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    ProductDTO newProduct = new ProductDTO(name, codProduct, totalStock, description, minStock, price, salesUnit, expirationDate, category);
+                    ProductDTO newProduct = new ProductDTO(name, codProduct, totalStock, description, minStock, price, salesUnit, category);
 
                     createProduct(newProduct);
                     JOptionPane.showMessageDialog(dialog, "Produto criado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);

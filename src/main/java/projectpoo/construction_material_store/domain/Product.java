@@ -37,9 +37,6 @@ public class Product {
     @Column(nullable = false)
     private double price;
 
-    @Column
-    private LocalDateTime expirationDate;
-
     @Column(nullable = false)
     private String salesUnit;
 
@@ -50,7 +47,16 @@ public class Product {
     public Product() {
     }
 
-    public Product(String name, String codProduct, double totalStock, String description, double minStock, double price, String salesUnit, LocalDateTime expirationDate, Category category) {
+    public Product(
+            String name,
+            String codProduct,
+            double totalStock,
+            String description,
+            double minStock,
+            double price,
+            String salesUnit,
+            Category category
+    ) {
         this.name = name;
         this.codProduct = codProduct;
         this.totalStock = totalStock;
@@ -58,7 +64,6 @@ public class Product {
         this.minStock = minStock;
         this.price = price;
         this.salesUnit = salesUnit;
-        this.expirationDate = expirationDate;
         this.category = category;
     }
 
@@ -114,14 +119,6 @@ public class Product {
         this.minStock = minStock;
     }
 
-    public Optional<LocalDateTime> getExpirationDate() {
-        return Optional.ofNullable(expirationDate);
-    }
-
-    public void setExpirationDate(LocalDateTime expirationDate) {
-        this.expirationDate = expirationDate;
-    }
-
     public String getSalesUnit() {
         return salesUnit;
     }
@@ -171,8 +168,8 @@ public class Product {
             throw new IllegalArgumentException("Categoria inválida: " + description);
         }
     }
-    
-    public void updateProduct(Product product){
+
+    public void updateProduct(Product product) {
 
         this.name = product.getName();
         this.codProduct = product.getcodProduct();
@@ -181,11 +178,10 @@ public class Product {
         this.minStock = product.getMinStock();
         this.price = product.getPrice();
         this.salesUnit = product.getSalesUnit();
-        this.expirationDate = product.getExpirationDate().orElse(null);
         this.category = product.getCategory();
     }
 
-    public ProductDTO toDTO(){
+    public ProductDTO toDTO() {
         return new ProductDTO(this);
     }
 }

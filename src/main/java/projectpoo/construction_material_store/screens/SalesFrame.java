@@ -62,7 +62,7 @@ public class SalesFrame extends JFrame {
         JPanel buttonPanel = new JPanel(new BorderLayout());
 
         // Botão "Voltar"
-        BackButton btnBack = new BackButton(this, mainScreen);
+        BackButton btnBack = new BackButton(this, mainScreen, dashboardScreen);
 
         // Painel para o botão "Voltar" no lado esquerdo
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
