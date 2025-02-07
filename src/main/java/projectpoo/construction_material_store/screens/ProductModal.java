@@ -53,10 +53,6 @@ public class ProductModal extends JDialog {
         JTextField codProductField = new JTextField(isEdit ? productDto.getCodProduct() : "");
         panel.add(codProductField);
 
-        panel.add(new JLabel("Quantidade em Estoque:"));
-        JTextField totalStockField = new JTextField(isEdit ? String.valueOf(productDto.getTotalStock()) : "");
-        panel.add(totalStockField);
-
         panel.add(new JLabel("Estoque Mínimo:"));
         JTextField minStockField = new JTextField(isEdit ? String.valueOf(productDto.getMinStock()) : "");
         panel.add(minStockField);
@@ -81,24 +77,23 @@ public class ProductModal extends JDialog {
             String name = nameField.getText();
             String codProduct = codProductField.getText();
             String description = descriptionField.getText();
-            String totalStockStr = totalStockField.getText();
             String minStockStr = minStockField.getText();
             String priceStr = priceField.getText();
             String salesUnit = salesUnitField.getText();
             String category = categoryList.getSelectedItem().toString();
 
-            double totalStock = Double.parseDouble(totalStockStr);
+            double totalStock = 0;
             double minStock = Double.parseDouble(minStockStr);
             double price = Double.parseDouble(priceStr);
 
             // Field validation
-            if (name.isEmpty() || codProduct.isEmpty() || totalStockStr.isEmpty() ||
+            if (name.isEmpty() || codProduct.isEmpty() ||
                     minStockStr.isEmpty() || priceStr.isEmpty() || salesUnit.isEmpty()) {
                 JOptionPane.showMessageDialog(dialog, "Todos os campos são obrigatórios.", "Erro", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            if (totalStock < 0 || minStock < 0 || price < 0) {
+            if (minStock < 0 || price < 0) {
                 JOptionPane.showMessageDialog(dialog, "Valores numéricos não podem ser negativos.", "Erro", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -111,7 +106,6 @@ public class ProductModal extends JDialog {
                     productDto.setName(name);
                     productDto.setCodProduct(codProduct);
                     productDto.setDescription(description);
-                    productDto.setTotalStock(totalStock);
                     productDto.setMinStock(minStock);
                     productDto.setPrice(price);
                     productDto.setSalesUnit(salesUnit);

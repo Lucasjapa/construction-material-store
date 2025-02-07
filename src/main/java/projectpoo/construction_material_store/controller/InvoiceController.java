@@ -17,29 +17,24 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/invoices")
-// Define a classe como um controlador REST e mapeia as requisições para o endpoint "/invoice"
 public class InvoiceController {
 
     @Autowired
     private InvoiceService invoiceService;
 
     @PostMapping
-    // Mapeia uma requisição POST para criar um novo produto
     public Invoice createInvoice(@RequestBody InvoiceDTO invoiceDTO) {
-        // Chama o serviço para salvar o produto recebido no corpo da requisição
         return invoiceService.saveInvoice(invoiceDTO);
     }
 
     @GetMapping
-    // Mapeia uma requisição GET para buscar todos os produtos
     public List<InvoiceDTO> getAllInvoices() {
         return invoiceService.getAllInvoices().stream()
-                .map(InvoiceDTO::new)  // Converte cada produto para ProductDTO
+                .map(InvoiceDTO::new)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/search-invoices/{codInvoice}")
-    // Mapeia uma requisição GET para buscar os invoice que contenha aquele nome
     public List<InvoiceDTO> getInvoiceByCodInvoice(@PathVariable String codInvoice) {
         return invoiceService.getInvoicesByCodInvoice(codInvoice).stream()
                 .map(InvoiceDTO::new)
@@ -47,7 +42,6 @@ public class InvoiceController {
     }
 
     @GetMapping("/{id}")
-    // Mapeia uma requisição GET para buscar um cliente pelo seu ID
     public ResponseEntity<InvoiceDTO> getInvoiceById(@PathVariable Long id) {
         Invoice invoice = invoiceService.getInvoiceById(id);
 
@@ -60,7 +54,6 @@ public class InvoiceController {
 
     @PutMapping("/update-invoice/{id}")
     public ResponseEntity<Invoice> updateInvoice(@PathVariable Long id, @RequestBody InvoiceDTO invoiceDTO) {
-        // Verifica se a fatura existe
         Invoice existingInvoice = invoiceService.getInvoiceById(id);
 
         if (existingInvoice != null) {
@@ -72,7 +65,6 @@ public class InvoiceController {
         }
     }
 
-    // Endpoint para retornar o total de faturas do mês atual
     @GetMapping("/total-current-month")
     public ResponseEntity<Long> getTotalInvoicesForCurrentMonth() {
         long totalInvoices = invoiceService.getTotalInvoicesForCurrentMonth();

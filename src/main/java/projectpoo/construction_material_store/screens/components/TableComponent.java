@@ -3,15 +3,18 @@ package projectpoo.construction_material_store.screens.components;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import projectpoo.construction_material_store.dto.ClientDTO;
-import projectpoo.construction_material_store.dto.InvoiceDTO;
-import projectpoo.construction_material_store.dto.ProductDTO;
+import projectpoo.construction_material_store.dto.*;
+import projectpoo.construction_material_store.screens.DashboardItensModal;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class TableComponent {
 
@@ -19,6 +22,10 @@ public class TableComponent {
     private JTable productTable;
     private JTable clientTable;
     private JTable invoiceTable;
+    private JTable purchaseTable;
+    private static List<ProductDTO> products = new ArrayList<>();
+
+    private static final String API_URL = "http://localhost:8080/purchases";
 
     public TableComponent(JPanel panel) {
         this.panel = panel;
@@ -56,6 +63,12 @@ public class TableComponent {
             invoiceTable = new JTable(tableModel);
             configureInvoiceTable(invoiceTable); // Configuração genérica
             JScrollPane scrollPane = new JScrollPane(invoiceTable);
+            panel.add(scrollPane);
+        } else if (items instanceof PurchaseDTO[]) {
+            // Configura a tabela
+            purchaseTable = new JTable(tableModel);
+            configurePurchaseTable(purchaseTable); // Configuração genérica
+            JScrollPane scrollPane = new JScrollPane(purchaseTable);
             panel.add(scrollPane);
         }
 
@@ -121,22 +134,41 @@ public class TableComponent {
             return tableModel;
 
         } else if (items instanceof InvoiceDTO[]) {
-        String[] columnNames = {"Selecionar","Cod. Nota Fiscal", "CPF/CNPJ", "Data da venda", "Total", "Status", "ID"};
-        DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+            String[] columnNames = {"Selecionar", "Cod. Nota Fiscal", "CPF/CNPJ", "Data da venda", "Total", "Status", "ID"};
+            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
 
-        for (InvoiceDTO invoiceDTO : (InvoiceDTO[]) items) {
-            tableModel.addRow(new Object[]{
-                    false,
-                    invoiceDTO.getCodInvoice(),
-                    invoiceDTO.getClient().getCpfCnpj(),
-                    invoiceDTO.getSaleDate(),
-                    invoiceDTO.getTotalPrice(),
-                    invoiceDTO.getStatus(),
-                    invoiceDTO.getId()
-            });
+            for (InvoiceDTO invoiceDTO : (InvoiceDTO[]) items) {
+                tableModel.addRow(new Object[]{
+                        false,
+                        invoiceDTO.getCodInvoice(),
+                        invoiceDTO.getClient().getCpfCnpj(),
+                        invoiceDTO.getSaleDate(),
+                        invoiceDTO.getTotalPrice(),
+                        invoiceDTO.getStatus(),
+
+                });
+            }
+            return tableModel;
+        } else if (items instanceof PurchaseDTO[]) {
+            String[] columnNames = {"Selecionar", "Data da Compra", "Total", "Itens", "ID"};
+            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return column == 0 || column == 3; // Permite edição apenas na seleção e no botão
+                }
+            };
+
+            for (PurchaseDTO purchaseDTO : (PurchaseDTO[]) items) {
+                tableModel.addRow(new Object[]{
+                        false,
+                        purchaseDTO.getPurchaseDate(),
+                        purchaseDTO.getTotalPrice(),
+                        "Ver Itens",
+                        purchaseDTO.getId()
+                });
+            }
+            return tableModel;
         }
-        return tableModel;
-    }
 
         // Para outros tipos de objetos (venda, etc.), adicione o mesmo padrão.
         return null;
@@ -175,6 +207,70 @@ public class TableComponent {
         table.getColumnModel().getColumn(6).setPreferredWidth(0);
     }
 
+    private void configurePurchaseTable(JTable table) {
+        // Torna a primeira coluna (de seleção) um JCheckBox
+        table.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(new JCheckBox())); // Checkbox na primeira coluna
+        table.getColumnModel().getColumn(0).setCellRenderer(new JCheckBoxRenderer()); // Renderer para exibir o JCheckBox
+
+        // Definir o renderizador e o editor do botão na coluna "Itens"
+        table.getColumnModel().getColumn(3).setCellRenderer(new ButtonRenderer());
+        table.getColumnModel().getColumn(3).setCellEditor(new ButtonAction(new JCheckBox(), table));
+
+        // Ocultar a coluna "ID"
+        table.getColumnModel().getColumn(4).setMaxWidth(0);
+        table.getColumnModel().getColumn(4).setMinWidth(0);
+        table.getColumnModel().getColumn(4).setPreferredWidth(0);
+    }
+
+    // Renderizador do botão
+    static class ButtonRenderer extends JButton implements TableCellRenderer {
+        public ButtonRenderer() {
+            setText("Ver Itens");
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            return this;
+        }
+    }
+
+    // Editor do botão
+    public class ButtonAction extends DefaultCellEditor {
+        private final JButton button;
+        private int selectedRow;
+        private final JTable table;
+
+        public ButtonAction(JCheckBox checkBox, JTable table) {
+            super(checkBox);
+            this.table = table;
+            button = new JButton("Ver Itens");
+            button.addActionListener(e -> showPurchaseProducts());
+        }
+
+        @Override
+        public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+            selectedRow = row;
+            return button;
+        }
+
+        @Override
+        public Object getCellEditorValue() {
+            return "Ver Itens";
+        }
+
+        // Método para obter o objeto da linha selecionada
+        private void showPurchaseProducts() {
+            // Obtém o objeto da linha selecionada
+            Long selectedObject = (Long) table.getValueAt(selectedRow, 4);  // Aqui assume-se que a primeira coluna tem os dados (ajuste conforme necessário)
+
+            // Agora, você pode fazer o que quiser com o objeto da linha.
+            // Exemplo: Mostrar os itens da compra para o PurchaseDTO
+            PurchaseDTO purchaseDTO = getPurchaseItemById(selectedObject);
+
+            new DashboardItensModal().showItensModal(purchaseDTO.getPurchaseItens());
+        }
+    }
+
     static class JCheckBoxRenderer extends JCheckBox implements TableCellRenderer {
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -208,6 +304,15 @@ public class TableComponent {
 
     public JTable getInvoiceTable() {
         return invoiceTable;
+    }
+
+    private PurchaseDTO getPurchaseItemById(Long purchaseItemId) {
+        // Criar uma instância de RestTemplate
+        RestTemplate restTemplate = new RestTemplate();
+
+        // Chama a API para obter o produto
+        String getUrl = API_URL + "/" + purchaseItemId;
+        return restTemplate.getForObject(getUrl, PurchaseDTO.class);
     }
 
 }

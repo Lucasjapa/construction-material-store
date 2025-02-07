@@ -34,23 +34,28 @@ public class MainScreen extends JFrame {
         // Criando botões
         JButton btnProduct = new JButton("Produtos");
         JButton btnClient = new JButton("Clientes");
+        JButton btnPurchase = new JButton("Compras");
         JButton btnSale = new JButton("Vendas");
 
         // Definir tamanho fixo dos botões
         Dimension buttonSize = new Dimension(140, 30);
         btnProduct.setMaximumSize(buttonSize);
         btnClient.setMaximumSize(buttonSize);
+        btnPurchase.setMaximumSize(buttonSize);
         btnSale.setMaximumSize(buttonSize);
 
         // Alinhar os botões ao centro horizontalmente (não afeta o alinhamento no eixo Y)
         btnProduct.setAlignmentX(JComponent.CENTER_ALIGNMENT);
         btnClient.setAlignmentX(JComponent.CENTER_ALIGNMENT);
+        btnPurchase.setAlignmentX(JComponent.CENTER_ALIGNMENT);
         btnSale.setAlignmentX(JComponent.CENTER_ALIGNMENT);
 
         // Adicionando os botões ao painel de botões
         buttonContainer.add(btnProduct);
         buttonContainer.add(Box.createRigidArea(new Dimension(0, 10))); // Espaço entre botões
         buttonContainer.add(btnClient);
+        buttonContainer.add(Box.createRigidArea(new Dimension(0, 10)));
+        buttonContainer.add(btnPurchase);
         buttonContainer.add(Box.createRigidArea(new Dimension(0, 10)));
         buttonContainer.add(btnSale);
 
@@ -68,6 +73,7 @@ public class MainScreen extends JFrame {
         // Definir ações dos botões
         btnProduct.addActionListener(e -> openProductFrame(dashboardScreen));
         btnClient.addActionListener(e -> openClientFrame(dashboardScreen));
+        btnPurchase.addActionListener(e -> openPurchaseFrame(dashboardScreen));
         btnSale.addActionListener(e -> openSalesFrame(dashboardScreen));
 
         // Adiciona os painéis ao frame principal
@@ -87,6 +93,13 @@ public class MainScreen extends JFrame {
         // Abre a tela de clientes
         ClientFrame clientFrame = new ClientFrame(this, dashboardScreen); // Passa a MainScreen como referência
         clientFrame.setVisible(true);
+        this.setVisible(false); // Apenas esconde a MainScreen
+    }
+
+    private void openPurchaseFrame(DashboardScreen dashboardScreen) {
+        // Abre a tela de clientes
+        PurchasesFrame purchasesFrame = new PurchasesFrame(this, dashboardScreen); // Passa a MainScreen como referência
+        purchasesFrame.setVisible(true);
         this.setVisible(false); // Apenas esconde a MainScreen
     }
 

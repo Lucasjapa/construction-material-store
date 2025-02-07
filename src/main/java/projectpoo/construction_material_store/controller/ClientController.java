@@ -23,7 +23,7 @@ public class ClientController {
     // Mapeia uma requisição POST para criar um novo produto
     public Client createClient(@RequestBody ClientDTO client) {
         // Chama o serviço para salvar o produto recebido no corpo da requisição
-        return clientService.saveClient(client.toclient());
+        return clientService.saveClient(client);
     }
 
     @GetMapping
@@ -61,12 +61,8 @@ public class ClientController {
         Client existingClient = clientService.getClientById(id);
 
         if (existingClient != null) {
-            // Converte o DTO para o modelo Product
-            Client updatedClient = clientDTO.toclient();
-            existingClient.updateClient(updatedClient);
-
             // Salva o produto atualizado
-            Client savedClient = clientService.saveClient(existingClient);
+            Client savedClient = clientService.updateClient(clientDTO, existingClient);
             return ResponseEntity.ok(savedClient);
         } else {
             // Retorna um status 404 caso o produto não seja encontrado

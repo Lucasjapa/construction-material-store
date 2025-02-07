@@ -5,9 +5,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import projectpoo.construction_material_store.domain.Invoice;
-import projectpoo.construction_material_store.dto.ClientDTO;
-import projectpoo.construction_material_store.dto.InvoiceDTO;
-import projectpoo.construction_material_store.dto.InvoiceItemDTO;
+import projectpoo.construction_material_store.domain.Purchase;
+import projectpoo.construction_material_store.dto.*;
 import projectpoo.construction_material_store.screens.components.TableComponent;
 
 import javax.swing.*;
@@ -16,19 +15,19 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SaleModal extends JDialog {
+public class PurchaseModal extends JDialog {
 
-    private static final String API_URL = "http://localhost:8080/invoices"; // URL da sua API
+    private static final String API_URL = "http://localhost:8080/purchases"; // URL da sua API
 
-    public SaleModal() {
+    public PurchaseModal() {
     }
 
-    public void saleActionModal(TableComponent tableComponent, InvoiceDTO invoiceDTO, DashboardScreen dashboardScreen) {
+    public void purchaseActionModal(TableComponent tableComponent, PurchaseDTO purchaseDTO, DashboardScreen dashboardScreen) {
         // Lista para armazenar os itens selecionados
-        List<InvoiceItemDTO> itens = new ArrayList<>();
+        List<PurchaseItemDTO> itens = new ArrayList<>();
 
         // Determina se é criação ou edição
-        boolean isEdit = invoiceDTO != null;
+        boolean isEdit = purchaseDTO != null;
         String dialogTitle = isEdit ? "Editar venda" : "Criar venda";
 
         JDialog dialog = new JDialog(this, dialogTitle, true);
@@ -43,13 +42,6 @@ public class SaleModal extends JDialog {
         JPanel fieldsPanel = new JPanel();
         fieldsPanel.setLayout(new GridLayout(3, 2, 10, 10)); // 3 linhas, 2 colunas, espaçamento de 10px
 
-        // Campo CPF/CNPJ
-        JLabel clientLabel = new JLabel("CPF/CNPJ:");
-        JTextField clientField = new JTextField(isEdit ? invoiceDTO.getClient().getCpfCnpj() : "");
-        clientField.setEditable(false);
-        fieldsPanel.add(clientLabel);
-        fieldsPanel.add(clientField);
-
         // Campo Total
         JLabel totalLabel = new JLabel("TOTAL:");
         JTextField totalPriceField = new JTextField(String.valueOf(0.0));
@@ -57,21 +49,15 @@ public class SaleModal extends JDialog {
         fieldsPanel.add(totalLabel);
         fieldsPanel.add(totalPriceField);
 
-        // Campo STATUS
-        JLabel statusLabel = new JLabel("STATUS:");
-        JComboBox<String> statusList = new JComboBox<>(new String[]{"FINALIZADO", "CANCELADO", "ESTORNADO"});
-        fieldsPanel.add(statusLabel);
-        fieldsPanel.add(statusList);
-
         mainPanel.add(fieldsPanel, BorderLayout.NORTH);
 
         // Painel para a tabela
         JPanel tablePanel = new JPanel(new BorderLayout());
-        JLabel tableLabel = new JLabel("Itens:");
+        JLabel tableLabel = new JLabel("Produtos:");
         tablePanel.add(tableLabel, BorderLayout.NORTH);
 
         // Tabela de itens
-        String[] colunas = {"Produto", "Quantidade", "Preço", "Total"};
+        String[] colunas = {"Produto", "Quantidade", "Preço de compra", "Total"};
         DefaultTableModel tableModel = new DefaultTableModel(colunas, 0);
         JTable table = new JTable(tableModel);
         table.setFillsViewportHeight(true);
@@ -83,43 +69,30 @@ public class SaleModal extends JDialog {
 
         // Painel para os botões
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-        SaleItemModal saleItemModal = new SaleItemModal();
-        ClientItemModal clientItemModal = new ClientItemModal();
+        PurchaseItemModal purchaseItemModal = new PurchaseItemModal();
 
         if (isEdit) {
             // Carregar itens existentes na tabela
-            itens.addAll(invoiceDTO.getInvoiceItens());
-            for (InvoiceItemDTO item : invoiceDTO.getInvoiceItens()) {
+            itens.addAll(purchaseDTO.getPurchaseItens());
+            for (PurchaseItemDTO item : itens) {
                 Object[] row = new Object[]{
                         item.getProduct().getName(),
-                        item.getQuantitySale(),
-                        item.getProduct().getPrice(),
-                        String.format("R$ %.2f", item.getProduct().getPrice() * item.getQuantitySale())
+                        item.getQuantityPurchase(),
+                        item.getUnitPrice(),
+                        String.format("R$ %.2f", item.getUnitPrice() * item.getQuantityPurchase())
                 };
                 tableModel.addRow(row);
             }
             double total = itens.stream()
-                    .mapToDouble(item -> item.getProduct().getPrice() * item.getQuantitySale())
+                    .mapToDouble(item -> item.getUnitPrice() * item.getQuantityPurchase())
                     .sum();
             totalPriceField.setText(String.format("%.2f", total));
         } else {
-            // Botão para adicionar cliente
-            JButton btnAddClient = new JButton("Adicionar Cliente");
-            btnAddClient.addActionListener(e -> {
-                clientItemModal.clientItemActionModal();
-                ClientDTO selectClient = clientItemModal.getSelectedItem();
-                if (selectClient != null) {
-                    clientField.putClientProperty("clientDTO", selectClient);
-                    clientField.setText(selectClient.getCpfCnpj());
-                }
-            });
-            buttonPanel.add(btnAddClient);
-
             // Botão para adicionar itens
-            JButton btnAddItem = new JButton("Adicionar Itens");
+            JButton btnAddItem = new JButton("Adicionar Produtos");
             btnAddItem.addActionListener(e -> {
-                saleItemModal.saleItemActionModal();
-                InvoiceItemDTO selectedItem = saleItemModal.getSelectedItem();
+                purchaseItemModal.purchaseItemActionModal();
+                PurchaseItemDTO selectedItem = purchaseItemModal.getSelectedItem();
                 double total;
 
                 boolean exist = itens.stream()
@@ -131,9 +104,9 @@ public class SaleModal extends JDialog {
                             // Atualiza a linha correspondente na tabela
                             for (int i = 0; i < tableModel.getRowCount(); i++) {
                                 if (tableModel.getValueAt(i, 0).equals(existingItem.getProduct().getName())) {
-                                    tableModel.setValueAt(selectedItem.getQuantitySale(), i, 1);
-                                    tableModel.setValueAt(selectedItem.getProduct().getPrice(), i, 2);
-                                    double itemTotal = selectedItem.getProduct().getPrice() * selectedItem.getQuantitySale();
+                                    tableModel.setValueAt(selectedItem.getQuantityPurchase(), i, 1);
+                                    tableModel.setValueAt(selectedItem.getUnitPrice() , i, 2);
+                                    double itemTotal = selectedItem.getUnitPrice() * selectedItem.getQuantityPurchase();
                                     tableModel.setValueAt(String.format("R$ %.2f", itemTotal), i, 3);
                                     break;
                                 }
@@ -145,15 +118,15 @@ public class SaleModal extends JDialog {
                     itens.add(selectedItem);
                     Object[] row = new Object[]{
                             selectedItem.getProduct().getName(),
-                            selectedItem.getQuantitySale(),
-                            selectedItem.getProduct().getPrice(),
-                            String.format("R$ %.2f", selectedItem.getProduct().getPrice() * selectedItem.getQuantitySale())
+                            selectedItem.getQuantityPurchase(),
+                            selectedItem.getUnitPrice(),
+                            String.format("R$ %.2f", selectedItem.getUnitPrice() * selectedItem.getQuantityPurchase())
                     };
                     tableModel.addRow(row);
                 }
 
                 total = itens.stream()
-                        .mapToDouble(item -> item.getProduct().getPrice() * item.getQuantitySale())
+                        .mapToDouble(item -> item.getUnitPrice() * item.getQuantityPurchase())
                         .sum();
 
                 totalPriceField.setText(String.format("%.2f", total));
@@ -165,36 +138,20 @@ public class SaleModal extends JDialog {
         // Botão de salvar
         JButton btnSave = new JButton(isEdit ? "Atualizar" : "Salvar");
         btnSave.addActionListener(e -> {
-            ClientDTO clientDTO = (ClientDTO) clientField.getClientProperty("clientDTO");
+
             double totalPrice = Double.parseDouble(totalPriceField.getText().replace(",", "."));
-            String status = statusList.getSelectedItem().toString();
 
             try {
                 if (isEdit) {
-                    invoiceDTO.setStatus(status);
-                    updateInvoice(invoiceDTO);
+//                    updateInvoice(invoiceDTO);
                     JOptionPane.showMessageDialog(dialog, "Venda atualizada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                 } else {
-                    InvoiceDTO newInvoice = new InvoiceDTO(clientDTO, totalPrice, itens, status);
-                    createInvoice(newInvoice);
-                    JOptionPane.showMessageDialog(dialog, "Venda criada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                    PurchaseDTO newPurchase = new PurchaseDTO(totalPrice, itens);
+                    createInvoice(newPurchase);
+                    JOptionPane.showMessageDialog(dialog, "Compra feita com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
 
-                    StringBuilder message = new StringBuilder();
-                    for (InvoiceItemDTO item : itens) {
-                        double newStock = item.getProduct().getTotalStock() - item.getQuantitySale();
-                        if (newStock < item.getProduct().getMinStock()) {
-                            message.append("• ").append(item.getProduct().getName()).append("\n");
-                        }
-                    }
-
-                    if (!message.isEmpty()) {
-                        JOptionPane.showMessageDialog(dialog,
-                                "Estoque mínimo atingido para os seguintes produtos:\n" + message,
-                                "Aviso",
-                                JOptionPane.WARNING_MESSAGE);
-                    }
                 }
-                tableComponent.loadData(API_URL, InvoiceDTO[].class);
+                tableComponent.loadData(API_URL, PurchaseDTO[].class);
                 // Atualizar o total de faturas na Dashboard
                 dashboardScreen.updateDashboard();
                 dialog.dispose();
@@ -211,15 +168,15 @@ public class SaleModal extends JDialog {
         dialog.setVisible(true);
     }
 
-    private void createInvoice(InvoiceDTO newInvoice) throws Exception {
+    private void createInvoice(PurchaseDTO newPurchase) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
 
         // Envia a requisição POST
-        HttpEntity<InvoiceDTO> request = new HttpEntity<>(newInvoice);
-        ResponseEntity<Invoice> response = restTemplate.exchange(API_URL, HttpMethod.POST, request, Invoice.class);
+        HttpEntity<PurchaseDTO> request = new HttpEntity<>(newPurchase);
+        ResponseEntity<Purchase> response = restTemplate.exchange(API_URL, HttpMethod.POST, request, Purchase.class);
 
         if (!response.getStatusCode().is2xxSuccessful()) {
-            throw new Exception("Erro ao criar venda: " + response.getStatusCode());
+            throw new Exception("Erro ao fazer compra: " + response.getStatusCode());
         }
     }
 
