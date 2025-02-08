@@ -29,7 +29,6 @@ public class ProductFrame extends JFrame {
 
         // JLabel com o título
         JLabel label = new JLabel("Lista de Produtos");
-        add(label, BorderLayout.NORTH);
 
         // Inicializa o painel e adiciona ao layout
         JPanel productPanel = new JPanel();
@@ -43,8 +42,9 @@ public class ProductFrame extends JFrame {
         // Adiciona o painel de busca acima da tabela
         JPanel searchPanel = searchBar.getSearchPanel(tableComponent,API_URL,API_URL + "/search-products/", ProductDTO[].class);
         JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.add(searchPanel, BorderLayout.NORTH); // Barra de busca acima
-        centerPanel.add(scrollPane, BorderLayout.CENTER); // Tabela no centro
+        add(searchPanel, BorderLayout.NORTH);
+        centerPanel.add(label, BorderLayout.NORTH);
+        centerPanel.add(scrollPane, BorderLayout.CENTER);
         add(centerPanel, BorderLayout.CENTER);
 
         // Adiciona o painel de botões ao layout no local apropriado (parte inferior)

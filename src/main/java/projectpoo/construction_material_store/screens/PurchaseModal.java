@@ -4,9 +4,9 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import projectpoo.construction_material_store.domain.Invoice;
 import projectpoo.construction_material_store.domain.Purchase;
-import projectpoo.construction_material_store.dto.*;
+import projectpoo.construction_material_store.dto.PurchaseDTO;
+import projectpoo.construction_material_store.dto.PurchaseItemDTO;
 import projectpoo.construction_material_store.screens.components.TableComponent;
 
 import javax.swing.*;
@@ -28,7 +28,7 @@ public class PurchaseModal extends JDialog {
 
         // Determina se é criação ou edição
         boolean isEdit = purchaseDTO != null;
-        String dialogTitle = isEdit ? "Editar venda" : "Criar venda";
+        String dialogTitle = "Criar venda";
 
         JDialog dialog = new JDialog(this, dialogTitle, true);
         dialog.setSize(750, 600);
@@ -105,7 +105,7 @@ public class PurchaseModal extends JDialog {
                             for (int i = 0; i < tableModel.getRowCount(); i++) {
                                 if (tableModel.getValueAt(i, 0).equals(existingItem.getProduct().getName())) {
                                     tableModel.setValueAt(selectedItem.getQuantityPurchase(), i, 1);
-                                    tableModel.setValueAt(selectedItem.getUnitPrice() , i, 2);
+                                    tableModel.setValueAt(selectedItem.getUnitPrice(), i, 2);
                                     double itemTotal = selectedItem.getUnitPrice() * selectedItem.getQuantityPurchase();
                                     tableModel.setValueAt(String.format("R$ %.2f", itemTotal), i, 3);
                                     break;
@@ -136,27 +136,22 @@ public class PurchaseModal extends JDialog {
         }
 
         // Botão de salvar
-        JButton btnSave = new JButton(isEdit ? "Atualizar" : "Salvar");
+        JButton btnSave = new JButton("Salvar");
         btnSave.addActionListener(e -> {
 
             double totalPrice = Double.parseDouble(totalPriceField.getText().replace(",", "."));
 
             try {
-                if (isEdit) {
-//                    updateInvoice(invoiceDTO);
-                    JOptionPane.showMessageDialog(dialog, "Venda atualizada com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
-                } else {
-                    PurchaseDTO newPurchase = new PurchaseDTO(totalPrice, itens);
-                    createInvoice(newPurchase);
-                    JOptionPane.showMessageDialog(dialog, "Compra feita com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
+                PurchaseDTO newPurchase = new PurchaseDTO(totalPrice, itens);
+                createPurchase(newPurchase);
+                JOptionPane.showMessageDialog(dialog, "Compra feita com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
 
-                }
                 tableComponent.loadData(API_URL, PurchaseDTO[].class);
                 // Atualizar o total de faturas na Dashboard
                 dashboardScreen.updateDashboard();
                 dialog.dispose();
             } catch (Exception ex) {
-                JOptionPane.showMessageDialog(dialog, "Erro ao salvar venda.", "Erro", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(dialog, "Erro ao salvar compra.", "Erro", JOptionPane.ERROR_MESSAGE);
                 ex.printStackTrace();
             }
         });
@@ -168,7 +163,7 @@ public class PurchaseModal extends JDialog {
         dialog.setVisible(true);
     }
 
-    private void createInvoice(PurchaseDTO newPurchase) throws Exception {
+    private void createPurchase(PurchaseDTO newPurchase) throws Exception {
         RestTemplate restTemplate = new RestTemplate();
 
         // Envia a requisição POST
@@ -180,16 +175,4 @@ public class PurchaseModal extends JDialog {
         }
     }
 
-    private void updateInvoice(InvoiceDTO invoiceDTO) throws Exception {
-        RestTemplate restTemplate = new RestTemplate();
-
-        // Envia a requisição PUT com o identificador do produto
-        String url = API_URL + "/update-invoice/" + invoiceDTO.getId();  // Supondo que o ID do produto seja parte da URL para atualização
-        HttpEntity<InvoiceDTO> request = new HttpEntity<>(invoiceDTO);
-        ResponseEntity<Invoice> response = restTemplate.exchange(url, HttpMethod.PUT, request, Invoice.class);
-
-        if (!response.getStatusCode().is2xxSuccessful()) {
-            throw new Exception("Erro ao atualizar venda: " + response.getStatusCode());
-        }
-    }
 }

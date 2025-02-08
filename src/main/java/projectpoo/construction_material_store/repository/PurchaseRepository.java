@@ -15,5 +15,7 @@ public interface PurchaseRepository extends JpaRepository<Purchase, Long> {
 
     Purchase findPurchaseById(Long id);
 
+    List<Purchase> findPurchaseByPurchaseDate(LocalDate purchaseDate);
+
     List<Purchase> findAllByOrderByPurchaseDateDesc();
 }

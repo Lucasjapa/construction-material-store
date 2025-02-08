@@ -3,6 +3,7 @@ package projectpoo.construction_material_store.screens.components;
 import projectpoo.construction_material_store.dto.ClientDTO;
 import projectpoo.construction_material_store.dto.InvoiceDTO;
 import projectpoo.construction_material_store.dto.ProductDTO;
+import projectpoo.construction_material_store.dto.PurchaseDTO;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,13 +16,13 @@ public class SearchBar {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT)); // Layout alinhado à esquerda
 
         if (ProductDTO[].class.isAssignableFrom(clazz)) {
-            // Adiciona o título "Produtos"
             searchPanel.add(new JLabel("Informe o nome do produto:")); // Adiciona o painel de título ao painel principal
         } else if (ClientDTO[].class.isAssignableFrom(clazz)) {
-            // Adiciona o título "Clientes"
             searchPanel.add(new JLabel("Informe o CPF/CNPJ:")); // Adiciona o painel de título ao painel principal
         } else if (InvoiceDTO[].class.isAssignableFrom(clazz)) {
             searchPanel.add(new JLabel("Informe o cod. da nota fiscal:"));
+        } else if (PurchaseDTO[].class.isAssignableFrom(clazz)) {
+            searchPanel.add(new JLabel("Informe a data da compra(dd-mm-aaaa):"));
         }
 
         // Campo de busca

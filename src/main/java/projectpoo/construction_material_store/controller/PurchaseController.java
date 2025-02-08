@@ -32,15 +32,15 @@ public class PurchaseController {
                 .map(PurchaseDTO::new)
                 .collect(Collectors.toList());
     }
-//
-//    @GetMapping("/search-invoices/{codInvoice}")
-//    // Mapeia uma requisição GET para buscar os invoice que contenha aquele nome
-//    public List<InvoiceDTO> getInvoiceByCodInvoice(@PathVariable String codInvoice) {
-//        return invoiceService.getInvoicesByCodInvoice(codInvoice).stream()
-//                .map(InvoiceDTO::new)
-//                .collect(Collectors.toList());
-//    }
-//
+
+    @GetMapping("/search-purchases/{date}")
+    // Mapeia uma requisição GET para buscar os invoice que contenha aquele nome
+    public List<PurchaseDTO> getInvoiceByDate(@PathVariable String date) {
+        return purchaseService.getPurchaseByDate(date).stream()
+                .map(PurchaseDTO::new)
+                .collect(Collectors.toList());
+    }
+
     @GetMapping("/{id}")
     // Mapeia uma requisição GET para buscar um cliente pelo seu ID
     public ResponseEntity<PurchaseDTO> getPurchaseById(@PathVariable Long id) {
@@ -52,25 +52,4 @@ public class PurchaseController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
-//
-//    @PutMapping("/update-invoice/{id}")
-//    public ResponseEntity<Invoice> updateInvoice(@PathVariable Long id, @RequestBody InvoiceDTO invoiceDTO) {
-//        // Verifica se a fatura existe
-//        Invoice existingInvoice = invoiceService.getInvoiceById(id);
-//
-//        if (existingInvoice != null) {
-//            Invoice updatedInvoice = invoiceService.updateInvoice(id, invoiceDTO);
-//            return ResponseEntity.ok(updatedInvoice);
-//        } else {
-//            // Retorna um status 404 caso a fatura não seja encontrada
-//            return ResponseEntity.status(404).body(null);
-//        }
-//    }
-//
-//    // Endpoint para retornar o total de faturas do mês atual
-//    @GetMapping("/total-current-month")
-//    public ResponseEntity<Long> getTotalInvoicesForCurrentMonth() {
-//        long totalInvoices = invoiceService.getTotalInvoicesForCurrentMonth();
-//        return ResponseEntity.ok(totalInvoices);
-//    }
 }

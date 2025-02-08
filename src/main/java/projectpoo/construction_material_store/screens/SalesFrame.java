@@ -25,7 +25,6 @@ public class SalesFrame extends JFrame {
 
         // JLabel com o título
         JLabel label = new JLabel("Lista de Vendas");
-        add(label, BorderLayout.NORTH);
 
         // Inicializa o painel e adiciona ao layout
         JPanel salesPanel = new JPanel();
@@ -39,7 +38,8 @@ public class SalesFrame extends JFrame {
         // Adiciona o painel de busca acima da tabela
         JPanel searchPanel = searchBar.getSearchPanel(tableComponent,API_URL, API_URL + "/search-invoices/", InvoiceDTO[].class);
         JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.add(searchPanel, BorderLayout.NORTH); // Barra de busca acima
+        add(searchPanel, BorderLayout.NORTH); // Barra de busca acima
+        centerPanel.add(label, BorderLayout.NORTH);
         centerPanel.add(scrollPane, BorderLayout.CENTER); // Tabela no centro
         add(centerPanel, BorderLayout.CENTER);
 

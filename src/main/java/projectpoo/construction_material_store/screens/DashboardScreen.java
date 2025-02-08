@@ -20,7 +20,7 @@ public class DashboardScreen extends JPanel {
     private JLabel labelTotalSales, titleTopProducts, titleLowProducts, titleStockEvaluation;
     private JLabel[] labelTopProducts = new JLabel[3];
     private JLabel[] labelLowProducts = new JLabel[3];
-    private JButton btnViewLowStockProducts;
+    private final JButton btnViewLowStockProducts;
 
     public DashboardScreen() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));

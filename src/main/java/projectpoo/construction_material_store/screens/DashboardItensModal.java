@@ -13,7 +13,7 @@ public class DashboardItensModal extends JDialog {
 
     public DashboardItensModal() {
         setTitle("Produtos");
-        setSize(650, 400);
+        setSize(850, 400);
         setLocationRelativeTo(null);
     }
 
@@ -30,32 +30,30 @@ public class DashboardItensModal extends JDialog {
 
         if (clazz == ProductDTO.class) {
             // Para ProductDTO
-            columnNames = new String[]{"Nome", "Código", "Estoque Total", "Estoque Mínimo", "Preço", "Unidade de venda"};
+            columnNames = new String[]{"Nome", "Código", "Estoque Total", "Estoque Mínimo", "Preço da unidade", "Unidade de venda"};
             model = new DefaultTableModel(columnNames, 0);
             for (T item : itens) {
-                ProductDTO product = (ProductDTO) item;
+                ProductDTO productDTO = (ProductDTO) item;
                 model.addRow(new Object[]{
-                        product.getName(),
-                        product.getCodProduct(),
-                        product.getTotalStock(),
-                        product.getMinStock(),
-                        product.getPrice(),
-                        product.getSalesUnit(),
+                        productDTO.getName(),
+                        productDTO.getCodProduct(),
+                        productDTO.getTotalStock(),
+                        productDTO.getMinStock(),
+                        String.format("R$ %.2f", productDTO.getPrice()),
+                        productDTO.getSalesUnit(),
                 });
             }
-        } else if (clazz == InvoiceDTO.class) {
+        } else if (clazz == InvoiceItemDTO.class) {
             // Para InvoiceDTO
-            columnNames = new String[]{"Selecionar", "Cod. Nota Fiscal", "CPF/CNPJ", "Data da venda", "Total", "Status", "ID"};
+            columnNames = new String[]{"Produto", "Quantidade vendida", "Preço da unidade", "Total"};
             model = new DefaultTableModel(columnNames, 0);
             for (T item : itens) {
-                InvoiceDTO invoiceDTO = (InvoiceDTO) item;
+                InvoiceItemDTO invoiceItemDTO = (InvoiceItemDTO) item;
                 model.addRow(new Object[]{
-                        false,
-                        invoiceDTO.getCodInvoice(),
-                        invoiceDTO.getClient().getCpfCnpj(),
-                        invoiceDTO.getSaleDate(),
-                        invoiceDTO.getTotalPrice(),
-                        invoiceDTO.getStatus(),
+                        invoiceItemDTO.getProduct().getName(),
+                        invoiceItemDTO.getQuantitySale(),
+                        String.format("R$ %.2f", invoiceItemDTO.getUnitPrice()),
+                        String.format("R$ %.2f", invoiceItemDTO.getUnitPrice() * invoiceItemDTO.getQuantitySale())
                 });
             }
         } else if (clazz == PurchaseItemDTO.class) {
@@ -72,8 +70,8 @@ public class DashboardItensModal extends JDialog {
                 model.addRow(new Object[]{
                         purchaseItemDTO.getProduct().getName(),
                         purchaseItemDTO.getQuantityPurchase(),
-                        purchaseItemDTO.getUnitPrice(),
-                        purchaseItemDTO.getQuantityPurchase() * purchaseItemDTO.getUnitPrice(),
+                        String.format("R$ %.2f", purchaseItemDTO.getUnitPrice()),
+                        String.format("R$ %.2f", purchaseItemDTO.getQuantityPurchase() * purchaseItemDTO.getUnitPrice()),
                 });
             }
         }
@@ -84,21 +82,15 @@ public class DashboardItensModal extends JDialog {
             return;
         }
 
-        // Criando a tabela com o modelo dinâmico
         JTable table = new JTable(model);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         table.setFillsViewportHeight(true);
 
-        // Adicionando a tabela a um painel com barra de rolagem
         JScrollPane scrollPane = new JScrollPane(table);
 
-        // Adicionando o painel ao diálogo
         getContentPane().removeAll();
         getContentPane().add(scrollPane, BorderLayout.CENTER);
 
-        // Configurando a janela
-        setSize(600, 400);
-        setLocationRelativeTo(null);
         setModal(true);
         setVisible(true);
     }

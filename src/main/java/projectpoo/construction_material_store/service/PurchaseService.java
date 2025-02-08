@@ -11,6 +11,7 @@ import projectpoo.construction_material_store.repository.InvoiceRepository;
 import projectpoo.construction_material_store.repository.PurchaseRepository;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,11 +39,14 @@ public class PurchaseService {
     public List<Purchase> getAllPurchases() {
         return purchaseRepository.findAllByOrderByPurchaseDateDesc();
     }
-//
-//    public List<Invoice> getPurchaseByDate(String codInvoice) {
-//        return purchaseRepository.findByCodInvoiceContainingIgnoreCase(codInvoice);
-//    }
-//
+
+    public List<Purchase> getPurchaseByDate(String purchaseDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        LocalDate date = LocalDate.parse(purchaseDate, formatter);
+        return purchaseRepository.findPurchaseByPurchaseDate(date);
+    }
+
     public Purchase getPurchaseById(long id) {
         return purchaseRepository.findPurchaseById(id);
     }

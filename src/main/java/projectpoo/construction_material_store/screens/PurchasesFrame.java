@@ -1,14 +1,11 @@
 package projectpoo.construction_material_store.screens;
 
-import org.springframework.web.client.RestTemplate;
-import projectpoo.construction_material_store.dto.InvoiceDTO;
 import projectpoo.construction_material_store.dto.PurchaseDTO;
 import projectpoo.construction_material_store.screens.components.BackButton;
 import projectpoo.construction_material_store.screens.components.SearchBar;
 import projectpoo.construction_material_store.screens.components.TableComponent;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 public class PurchasesFrame extends JFrame {
@@ -28,7 +25,6 @@ public class PurchasesFrame extends JFrame {
 
         // JLabel com o título
         JLabel label = new JLabel("Lista de Compras");
-        add(label, BorderLayout.NORTH);
 
         // Inicializa o painel e adiciona ao layout
         JPanel salesPanel = new JPanel();
@@ -40,9 +36,10 @@ public class PurchasesFrame extends JFrame {
         SearchBar searchBar = new SearchBar();
 
         // Adiciona o painel de busca acima da tabela
-        JPanel searchPanel = searchBar.getSearchPanel(tableComponent,API_URL, API_URL + "/search-invoices/", InvoiceDTO[].class);
+        JPanel searchPanel = searchBar.getSearchPanel(tableComponent,API_URL, API_URL + "/search-purchases/", PurchaseDTO[].class);
         JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.add(searchPanel, BorderLayout.NORTH); // Barra de busca acima
+        add(searchPanel, BorderLayout.NORTH); // Barra de busca acima
+        centerPanel.add(label, BorderLayout.NORTH);
         centerPanel.add(scrollPane, BorderLayout.CENTER); // Tabela no centro
         add(centerPanel, BorderLayout.CENTER);
 

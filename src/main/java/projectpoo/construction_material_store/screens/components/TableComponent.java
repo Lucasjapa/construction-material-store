@@ -10,10 +10,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class TableComponent {
@@ -25,7 +22,8 @@ public class TableComponent {
     private JTable purchaseTable;
     private static List<ProductDTO> products = new ArrayList<>();
 
-    private static final String API_URL = "http://localhost:8080/purchases";
+    private static final String API_URL_PURCHASE = "http://localhost:8080/purchases";
+    private static final String API_URL_INVOICE = "http://localhost:8080/invoices";
 
     public TableComponent(JPanel panel) {
         this.panel = panel;
@@ -101,16 +99,16 @@ public class TableComponent {
             String[] columnNames = {"Selecionar", "Nome", "Código", "Estoque Total", "Estoque Mínimo", "Preço", "Unidade", "ID"};
             DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
 
-            for (ProductDTO product : (ProductDTO[]) items) {
+            for (ProductDTO productDTO : (ProductDTO[]) items) {
                 tableModel.addRow(new Object[]{
                         false,
-                        product.getName(),
-                        product.getCodProduct(),
-                        product.getTotalStock(),
-                        product.getMinStock(),
-                        product.getPrice(),
-                        product.getSalesUnit(),
-                        product.getId()
+                        productDTO.getName(),
+                        productDTO.getCodProduct(),
+                        productDTO.getTotalStock(),
+                        productDTO.getMinStock(),
+                        String.format("R$ %.2f", productDTO.getPrice()),
+                        productDTO.getSalesUnit(),
+                        productDTO.getId()
                 });
             }
 
@@ -120,22 +118,27 @@ public class TableComponent {
             String[] columnNames = {"Selecionar", "Nome", "CPF/CNPJ", "Email", "Telefone", "ID"};
             DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
 
-            for (ClientDTO client : (ClientDTO[]) items) {
+            for (ClientDTO clientDTO : (ClientDTO[]) items) {
                 tableModel.addRow(new Object[]{
                         false,
-                        client.getName(),
-                        client.getCpfCnpj(),
-                        client.getEmail(),
-                        client.getPhoneNumber(),
-                        client.getId()
+                        clientDTO.getName(),
+                        clientDTO.getCpfCnpj(),
+                        clientDTO.getEmail(),
+                        clientDTO.getPhoneNumber(),
+                        clientDTO.getId()
                 });
             }
 
             return tableModel;
 
         } else if (items instanceof InvoiceDTO[]) {
-            String[] columnNames = {"Selecionar", "Cod. Nota Fiscal", "CPF/CNPJ", "Data da venda", "Total", "Status", "ID"};
-            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
+            String[] columnNames = {"Selecionar", "Cod. Nota Fiscal", "CPF/CNPJ", "Data da venda", "Total", "Status", "Itens", "ID"};
+            DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
+                @Override
+                public boolean isCellEditable(int row, int column) {
+                    return column == 0 || column == 6; // Permite edição apenas na seleção e no botão
+                }
+            };
 
             for (InvoiceDTO invoiceDTO : (InvoiceDTO[]) items) {
                 tableModel.addRow(new Object[]{
@@ -143,26 +146,26 @@ public class TableComponent {
                         invoiceDTO.getCodInvoice(),
                         invoiceDTO.getClient().getCpfCnpj(),
                         invoiceDTO.getSaleDate(),
-                        invoiceDTO.getTotalPrice(),
+                        String.format("R$ %.2f", invoiceDTO.getTotalPrice()),
                         invoiceDTO.getStatus(),
-
+                        "Ver Itens",
+                        invoiceDTO.getId()
                 });
             }
             return tableModel;
         } else if (items instanceof PurchaseDTO[]) {
-            String[] columnNames = {"Selecionar", "Data da Compra", "Total", "Itens", "ID"};
+            String[] columnNames = {"Data da Compra", "Total", "Itens", "ID"};
             DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0) {
                 @Override
                 public boolean isCellEditable(int row, int column) {
-                    return column == 0 || column == 3; // Permite edição apenas na seleção e no botão
+                    return column == 0 || column == 2; // Permite edição apenas na seleção e no botão
                 }
             };
 
             for (PurchaseDTO purchaseDTO : (PurchaseDTO[]) items) {
                 tableModel.addRow(new Object[]{
-                        false,
                         purchaseDTO.getPurchaseDate(),
-                        purchaseDTO.getTotalPrice(),
+                        String.format("R$ %.2f", purchaseDTO.getTotalPrice()),
                         "Ver Itens",
                         purchaseDTO.getId()
                 });
@@ -201,25 +204,25 @@ public class TableComponent {
         table.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(new JCheckBox())); // Checkbox na primeira coluna
         table.getColumnModel().getColumn(0).setCellRenderer(new JCheckBoxRenderer()); // Renderer para exibir o JCheckBox
 
+        // Definir o renderizador e o editor do botão na coluna "Itens"
+        table.getColumnModel().getColumn(6).setCellRenderer(new ButtonRenderer());
+        table.getColumnModel().getColumn(6).setCellEditor(new ButtonAction(new JCheckBox(), table));
+
         // Ocultar a coluna "ID"
-        table.getColumnModel().getColumn(6).setMaxWidth(0);
-        table.getColumnModel().getColumn(6).setMinWidth(0);
-        table.getColumnModel().getColumn(6).setPreferredWidth(0);
+        table.getColumnModel().getColumn(7).setMaxWidth(0);
+        table.getColumnModel().getColumn(7).setMinWidth(0);
+        table.getColumnModel().getColumn(7).setPreferredWidth(0);
     }
 
     private void configurePurchaseTable(JTable table) {
-        // Torna a primeira coluna (de seleção) um JCheckBox
-        table.getColumnModel().getColumn(0).setCellEditor(new DefaultCellEditor(new JCheckBox())); // Checkbox na primeira coluna
-        table.getColumnModel().getColumn(0).setCellRenderer(new JCheckBoxRenderer()); // Renderer para exibir o JCheckBox
-
         // Definir o renderizador e o editor do botão na coluna "Itens"
-        table.getColumnModel().getColumn(3).setCellRenderer(new ButtonRenderer());
-        table.getColumnModel().getColumn(3).setCellEditor(new ButtonAction(new JCheckBox(), table));
+        table.getColumnModel().getColumn(2).setCellRenderer(new ButtonRenderer());
+        table.getColumnModel().getColumn(2).setCellEditor(new ButtonAction(new JCheckBox(), table));
 
         // Ocultar a coluna "ID"
-        table.getColumnModel().getColumn(4).setMaxWidth(0);
-        table.getColumnModel().getColumn(4).setMinWidth(0);
-        table.getColumnModel().getColumn(4).setPreferredWidth(0);
+        table.getColumnModel().getColumn(3).setMaxWidth(0);
+        table.getColumnModel().getColumn(3).setMinWidth(0);
+        table.getColumnModel().getColumn(3).setPreferredWidth(0);
     }
 
     // Renderizador do botão
@@ -244,7 +247,7 @@ public class TableComponent {
             super(checkBox);
             this.table = table;
             button = new JButton("Ver Itens");
-            button.addActionListener(e -> showPurchaseProducts());
+            button.addActionListener(e -> showPurchaseInvoiceProducts());
         }
 
         @Override
@@ -258,17 +261,19 @@ public class TableComponent {
             return "Ver Itens";
         }
 
-        // Método para obter o objeto da linha selecionada
-        private void showPurchaseProducts() {
-            // Obtém o objeto da linha selecionada
-            Long selectedObject = (Long) table.getValueAt(selectedRow, 4);  // Aqui assume-se que a primeira coluna tem os dados (ajuste conforme necessário)
+        private void showPurchaseInvoiceProducts() {
+            if(table.getModel().getColumnCount() == 4){
+                Long selectedObject = (Long) table.getValueAt(selectedRow, 3);
+                PurchaseDTO purchaseDTO = getPurchaseItemById(selectedObject);
+                new DashboardItensModal().showItensModal(purchaseDTO.getPurchaseItens());
 
-            // Agora, você pode fazer o que quiser com o objeto da linha.
-            // Exemplo: Mostrar os itens da compra para o PurchaseDTO
-            PurchaseDTO purchaseDTO = getPurchaseItemById(selectedObject);
-
-            new DashboardItensModal().showItensModal(purchaseDTO.getPurchaseItens());
+            } else if(table.getModel().getColumnCount() == 8){
+                Long selectedObject = (Long) table.getValueAt(selectedRow, 7);
+                InvoiceDTO invoiceDTO = getInvoiceById(selectedObject);
+                new DashboardItensModal().showItensModal(invoiceDTO.getInvoiceItens());
+            }
         }
+
     }
 
     static class JCheckBoxRenderer extends JCheckBox implements TableCellRenderer {
@@ -311,8 +316,17 @@ public class TableComponent {
         RestTemplate restTemplate = new RestTemplate();
 
         // Chama a API para obter o produto
-        String getUrl = API_URL + "/" + purchaseItemId;
+        String getUrl = API_URL_PURCHASE + "/" + purchaseItemId;
         return restTemplate.getForObject(getUrl, PurchaseDTO.class);
+    }
+
+    private InvoiceDTO getInvoiceById(Long invoiceItemId) {
+        // Criar uma instância de RestTemplate
+        RestTemplate restTemplate = new RestTemplate();
+
+        // Chama a API para obter o produto
+        String getUrl = API_URL_INVOICE + "/" + invoiceItemId;
+        return restTemplate.getForObject(getUrl, InvoiceDTO.class);
     }
 
 }
